@@ -1,0 +1,27 @@
+{
+ "source": "4 AlexDiary shorts measured frame by frame on 2026-11-22 (docs/analysis/reference-shorts-frame-notes.md). Camera from optical flow of the Bridge short; ours from window.__camAt.",
+ "targets": {
+  "duration_s": [55, 70, " s"],
+  "words": [210, 270, ""],
+  "words_per_s": [3.7, 4.3, ""],
+  "first_word_s": [0, 0.3, " s"],
+  "end_hold_s": [0.1, 0.7, " s"],
+  "speed_max": [0, 90, " px/f"],
+  "speed_p90": [0, 25, " px/f"],
+  "accel_p99": [0, 9, ""],
+  "still_or_slow_pct": [65, 100, " %"],
+  "fast_moves": [6, 14, ""],
+  "loudness_LUFS": [-11, -6, ""]
+ },
+ "facts": {
+  "visual_beat_every_s": 1.3,
+  "hard_cuts": "0-1 per film, only as a punchline",
+  "camera_height_m": "1-6 m (one high shot at the end)",
+  "captions": "centre, 2 words, white + a colour that changes every pair",
+  "congratulations": "3-4 per film; low camera looking up, hero small, structure big",
+  "transitions": "1.5-2 s eased pans, foreground wipes (boat, person, animal), dust or haze; whips rarely",
+  "gags": "1-3 unspoken visual gags per film",
+  "cast": "a recurring hero + recurring villains + 8-12 extras always doing something",
+  "cause_effect": "every result is preceded on screen by the thing that causes it (a robber swings, then the wall breaks)"
+ }
+}

@@ -6,6 +6,7 @@
 !/README.md
 !/CLAUDE.md
 !/docs/
+!/claude/
 !/renders/
 
 !/tools/
@@ -28,6 +29,9 @@
 # never: renders, stills, contact sheets, installs, browser profiles
 render/
 snaps/
+**/review/frames/
+**/review/sheets/
+**/review/qa/
 node_modules/
 *.mp4
 !/renders/*.mp4

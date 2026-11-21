@@ -37,3 +37,6 @@ After each piece of work, commit and push everything to GitHub (the owner asked 
 - Download only with the user's OK. Never copy the paid HowItsBuiltKit files.
 - The repo is PUBLIC: Mixamo .fbx files are NOT in it (Adobe terms forbid sharing them on their own). Re-download them from mixamo.com (Remy, Without Skin for clips) into films/quicksand-pov/mixamo/ and run node mixamo-manifest.js.
 - Each film's `facts.md` lists claims to verify before posting and asset licences.
+
+## Content system
+New shorts go through the `shorts-studio` skill (claude/skills/shorts-studio): writer agent -> voice -> director agent -> build (main session only) -> creative + tech reviewer agents in parallel -> owner in VideoHub -> render -> QA -> push. Review kit: tools/vh-engine/review/.
