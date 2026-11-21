@@ -28,6 +28,10 @@ Reply to the user in Roman Urdu.
   from `npm/three-0.160.0.tgz` (extract it to `npm/package` first).
 - Quicksand: `mixamo-manifest.js` scans `mixamo/*.fbx` and writes `mixamo/manifest.js` (roles walk/scared/struggle/pull/float/roll/up).
 
+## Read first
+`docs/HISTORY.md` has every decision, the reference-shorts study, the camera rules, the Mixamo workflow and the asset list.
+After each piece of work, commit and push everything to GitHub (the owner asked for this).
+
 ## Rules
 - Never type passwords or codes; the user signs in himself (Adobe/Mixamo, GitHub).
 - Download only with the user's OK. Never copy the paid HowItsBuiltKit files.

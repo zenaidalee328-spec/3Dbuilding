@@ -1,0 +1,11 @@
+{
+ "title": "Character Test",
+ "status": "in-progress",
+ "render": {
+  "workers": 2,
+  "env": {
+   "DUR": "15.4"
+  }
+ },
+ "updated": "2026-11-21T23:09:45.650Z"
+}

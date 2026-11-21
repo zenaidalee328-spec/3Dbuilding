@@ -5,6 +5,8 @@
 !/.gitattributes
 !/README.md
 !/CLAUDE.md
+!/docs/
+!/renders/
 
 !/tools/
 /tools/*
@@ -19,12 +21,16 @@
 !/films/watch-exploded/
 !/films/earthquake-test/
 !/films/quicksand-pov/
+!/films/roman-aqueduct/
+!/films/castle/
+!/films/character-test/
 
 # never: renders, stills, contact sheets, installs, browser profiles
 render/
 snaps/
 node_modules/
 *.mp4
+!/renders/*.mp4
 *.log
 sheet*.jpg
 *profile*/

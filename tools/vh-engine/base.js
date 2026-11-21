@@ -88,6 +88,12 @@
       vec3 c = gl_FragColor.rgb; float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
       c = mix(vec3(l), c, sat); c = (c - 0.5) * con + 0.5; gl_FragColor.rgb = clamp(c, 0.0, 1.0);
     }`, { tA: { value: rtDof.texture }, tB: { value: rtB[0].texture }, tC: { value: rtC[0].texture }, bloom: { value: 0.45 }, sat: { value: 1.2 }, con: { value: 1.06 } }, true);
+  // motion blur along a screen direction (whip pans): POST.mb = [dx, dy] in pixels; 0 = off
+  const rtOut = new THREE.WebGLRenderTarget(W, H, rtOpt);
+  const mbMat = pmat(`uniform sampler2D t; uniform vec2 dir; varying vec2 vUv;
+    void main(){ vec3 c = vec3(0.0); for (int i = 0; i < 24; i++) { float f = float(i) / 23.0 - 0.5; c += texture2D(t, vUv + dir * f).rgb; } gl_FragColor = vec4(c / 24.0, 1.0); }`,
+    { t: { value: rtOut.texture }, dir: { value: new THREE.Vector2() } });
+  POST.mb = [0, 0]; POST.exp = 1.1;
   const pass = (mat, target) => { quad.material = mat; R.setRenderTarget(target); R.render(postScene, postCam); };
   function blur2(rts, w, h, n) { for (let i = 0; i < n; i++) {
     blurMat.uniforms.t.value = rts[0].texture; blurMat.uniforms.dir.value.set(1 / w, 0); pass(blurMat, rts[1]);
@@ -101,8 +107,26 @@
     blur2(rtB, BW, BH, 2);
     brightMat.uniforms.t.value = rtB[0].texture; brightMat.uniforms.thr.value = 0; brightMat.uniforms.px.value.set(1 / BW, 1 / BH); pass(brightMat, rtC[0]);
     blur2(rtC, BW / 2, BH / 2, 3);
-    outMat.uniforms.bloom.value = POST.bloom; outMat.uniforms.sat.value = POST.sat; outMat.uniforms.con.value = POST.con; pass(outMat, null);
+    outMat.uniforms.bloom.value = POST.bloom; outMat.uniforms.sat.value = POST.sat; outMat.uniforms.con.value = POST.con;
+    R.toneMappingExposure = POST.exp;
+    const mb = Math.hypot(POST.mb[0], POST.mb[1]);
+    if (mb > 0.75) { pass(outMat, rtOut); mbMat.uniforms.dir.value.set(POST.mb[0] / W, -POST.mb[1] / H); pass(mbMat, null); }
+    else pass(outMat, null);
   }
+  // a gold band of light that sweeps over stone ("it worked"): B.sweepify(material); B.SWEEP = {dir, pos, width, amt}
+  const SW = B.SWEEP = { dir: new THREE.Vector3(1, 0, 0), pos: -1e5, width: 6, amt: 0, col: new THREE.Color(1.0, 0.72, 0.25) };
+  const swU = { swDir: { value: SW.dir }, swPos: { value: 0 }, swW: { value: 6 }, swAmt: { value: 0 }, swCol: { value: SW.col } };
+  B.sweepify = function (mat) {
+    mat.onBeforeCompile = sh => {
+      Object.assign(sh.uniforms, swU);
+      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vSwW;').replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvSwW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vSwW; uniform vec3 swDir, swCol; uniform float swPos, swW, swAmt;')
+        .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n{ float d = (dot(vSwW, swDir) - swPos) / swW; totalEmissiveRadiance += swCol * swAmt * exp(-d * d); }');
+    };
+    mat.customProgramCacheKey = () => 'sweep';
+    return mat;
+  };
+  const syncSweep = () => { swU.swPos.value = SW.pos; swU.swW.value = SW.width; swU.swAmt.value = SW.amt; };
 
   const scene = B.scene = new THREE.Scene();
   const cam = B.cam = new THREE.PerspectiveCamera(40, W / H, 0.1, 2000);
@@ -252,6 +276,28 @@
     });
     g.restore();
   };
+  // reel captions: two words in the middle of the frame, the first white, the second in a colour that changes every pair
+  const CAPC = ['#ffe14d', '#ff4fa3', '#4dff7a', '#ff3b3b', '#3fe6ff'];
+  let pairs = null;
+  B.captionsCenter = function (t, o = {}) {
+    const { lines, words } = window.TL, font = o.font || 'Poppins', size = o.size || 62, y = o.y || H * 0.5;
+    if (!pairs) { pairs = []; lines.forEach(L => { let cur = [];
+      words.filter(w => w.line === L.i).forEach(w => { const long = w.w.replace(/[^a-z]/gi, '').length >= 11;
+        if (long && cur.length) { pairs.push(cur); cur = []; }
+        cur.push(w); if (cur.length === 2 || long) { pairs.push(cur); cur = []; } });
+      if (cur.length) pairs.push(cur); }); }
+    let pi = -1; for (let i = 0; i < pairs.length; i++) if (pairs[i][0].t0 <= t + 0.02) pi = i;
+    if (pi < 0) return; const pr = pairs[pi];
+    if (pi === pairs.length - 1 && t > pr[pr.length - 1].t1 + 0.6) return;
+    const txt = pr.map(w => w.w.toUpperCase().replace(/[.,?!:;]+$/, '').replace(/^TWENTY-FIVE$/, '25'));
+    g.save(); g.font = `${size}px ${font}`; g.textBaseline = 'middle'; g.lineJoin = 'round';
+    const sp = size * 0.28, widths = txt.map(s => g.measureText(s).width), total = widths.reduce((a, b) => a + b, 0) + sp * (txt.length - 1);
+    let x = W / 2 - total / 2; const col = CAPC[pi % CAPC.length];
+    g.shadowColor = 'rgba(0,0,0,0.85)'; g.shadowBlur = size * 0.35; g.shadowOffsetY = size * 0.04;
+    txt.forEach((s, i) => { g.lineWidth = size * 0.16; g.strokeStyle = 'rgba(0,0,0,0.9)'; g.strokeText(s, x, y);
+      g.fillStyle = (txt.length === 1 || i === 1) ? col : '#ffffff'; g.shadowBlur = 0; g.fillText(s, x, y); g.shadowBlur = size * 0.35; x += widths[i] + sp; });
+    g.restore();
+  };
   B.project = p => { const v = p.clone().project(cam); return { x: (v.x + 1) / 2 * W, y: (1 - v.y) / 2 * H, ok: v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1 }; };
   // a label with a pointer line to a 3D point
   B.label = function (t, text, p3, t0, t1, side = 1, col = KEYC, dy = -220) {
@@ -306,15 +352,18 @@
     window.VH_SCENES = (film.scenes || []).map(([name, t0, t1]) => ({ name, t0: +t0.toFixed(2), t1: +t1.toFixed(2) }));
     window.renderOut = function (t) {
       t = clamp(+t || 0, 0, DUR);
+      POST.mb = [0, 0]; SW.amt = 0;
       film.update(t);
+      syncSweep();
       renderPost(scene, cam);
       g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
       g.drawImage(glc, 0, 0, W, H);
       if (film.overlay) film.overlay(t);
-      B.captions(t);
+      if (film.captions === 'center') B.captionsCenter(t, film.captionOpts); else if (film.captions !== false) B.captions(t);
     };
     (async () => {
       const font = new FontFace(FONT, 'url(fonts/Anton-Regular.ttf)'); await font.load(); document.fonts.add(font);
+      for (const [name, url] of (film.fonts || [])) { const f = new FontFace(name, `url(${url})`); await f.load(); document.fonts.add(f); }
       await Promise.all(pending);
       if (film.ready) await film.ready();
       const pm = new THREE.PMREMGenerator(R);
