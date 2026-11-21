@@ -1,0 +1,11 @@
+{
+ "title": "Inside a watch",
+ "status": "in-progress",
+ "render": {
+  "workers": 2,
+  "env": {
+   "DUR": "35.49"
+  }
+ },
+ "updated": "2026-11-20T12:40:54.170Z"
+}

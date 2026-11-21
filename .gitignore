@@ -1,0 +1,37 @@
+# Whitelist: only the realistic-3D shorts and the shared engine go to GitHub.
+# Everything else in this VideoHub workspace (other channels' films, renders, outputs) stays local.
+/*
+!/.gitignore
+!/.gitattributes
+!/README.md
+!/CLAUDE.md
+
+!/tools/
+/tools/*
+!/tools/vh-engine/
+
+!/films/
+/films/*
+!/films/clay-pot-fridge/
+!/films/windcatcher/
+!/films/deepest-hole/
+!/films/ten-thousand-years/
+!/films/watch-exploded/
+!/films/earthquake-test/
+!/films/quicksand-pov/
+
+# never: renders, stills, contact sheets, installs, browser profiles
+render/
+snaps/
+node_modules/
+*.mp4
+*.log
+sheet*.jpg
+*profile*/
+tools/vh-engine/npm/package/
+tools/vh-engine/assets/models/island_tree_02/
+films/*/mixamo/*.tmp
+**/audio/tmp/
+**/audio/tmp_*
+**/voice/tts_*.wav
+films/*/mixamo/*.fbx

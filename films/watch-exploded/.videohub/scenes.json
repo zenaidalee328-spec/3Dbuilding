@@ -1,0 +1,61 @@
+{
+ "scenes": [
+  {
+   "name": "Hook",
+   "t0": 0,
+   "t1": 4.65
+  },
+  {
+   "name": "Glass, hands, dial",
+   "t0": 4.65,
+   "t1": 7.2
+  },
+  {
+   "name": "Mainspring",
+   "t0": 7.2,
+   "t1": 10.62
+  },
+  {
+   "name": "Gear train",
+   "t0": 10.62,
+   "t1": 13.67
+  },
+  {
+   "name": "Runaway",
+   "t0": 13.67,
+   "t1": 15.78
+  },
+  {
+   "name": "Escape wheel",
+   "t0": 15.78,
+   "t1": 19.13
+  },
+  {
+   "name": "Pallet fork",
+   "t0": 19.13,
+   "t1": 21.89
+  },
+  {
+   "name": "Balance wheel",
+   "t0": 21.89,
+   "t1": 25.96
+  },
+  {
+   "name": "Jewels",
+   "t0": 25.96,
+   "t1": 28.95
+  },
+  {
+   "name": "Exploded",
+   "t0": 28.95,
+   "t1": 32.29
+  },
+  {
+   "name": "Back together",
+   "t0": 32.29,
+   "t1": 35.49
+  }
+ ],
+ "source": "VH_SCENES",
+ "at": "2026-11-20T13:28:48.467Z"
+}

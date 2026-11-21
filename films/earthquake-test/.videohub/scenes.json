@@ -1,0 +1,51 @@
+{
+ "scenes": [
+  {
+   "name": "Hook",
+   "t0": 0,
+   "t1": 4.07
+  },
+  {
+   "name": "Three buildings",
+   "t0": 4.07,
+   "t1": 9.31
+  },
+  {
+   "name": "M5",
+   "t0": 9.31,
+   "t1": 12.11
+  },
+  {
+   "name": "M6: cracks",
+   "t0": 12.11,
+   "t1": 14
+  },
+  {
+   "name": "M7: mud house falls",
+   "t0": 14,
+   "t1": 18.04
+  },
+  {
+   "name": "M8: brick building falls",
+   "t0": 18.04,
+   "t1": 21.16
+  },
+  {
+   "name": "Rubber pads",
+   "t0": 21.16,
+   "t1": 26.76
+  },
+  {
+   "name": "Base isolation",
+   "t0": 26.76,
+   "t1": 31.35
+  },
+  {
+   "name": "Ending",
+   "t0": 31.35,
+   "t1": 36.22
+  }
+ ],
+ "source": "VH_SCENES",
+ "at": "2026-11-20T13:30:39.560Z"
+}

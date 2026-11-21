@@ -1,0 +1,11 @@
+{
+ "title": "Earthquake test",
+ "status": "in-progress",
+ "render": {
+  "workers": 2,
+  "env": {
+   "DUR": "36.22"
+  }
+ },
+ "updated": "2026-11-20T12:48:29.898Z"
+}

@@ -1,0 +1,11 @@
+{
+ "title": "Deepest hole",
+ "status": "in-progress",
+ "render": {
+  "workers": 2,
+  "env": {
+   "DUR": "46.82"
+  }
+ },
+ "updated": "2026-11-20T12:30:34.915Z"
+}

@@ -1,0 +1,71 @@
+{
+ "scenes": [
+  {
+   "name": "Hook",
+   "t0": 0,
+   "t1": 6.65
+  },
+  {
+   "name": "Two pots",
+   "t0": 6.65,
+   "t1": 9.44
+  },
+  {
+   "name": "Air gap (cutaway)",
+   "t0": 9.44,
+   "t1": 12.18
+  },
+  {
+   "name": "Sand",
+   "t0": 12.18,
+   "t1": 14.88
+  },
+  {
+   "name": "Water + seep",
+   "t0": 14.88,
+   "t1": 20.4
+  },
+  {
+   "name": "Evaporative cooling",
+   "t0": 20.4,
+   "t1": 29.12
+  },
+  {
+   "name": "Sun + shade",
+   "t0": 29.12,
+   "t1": 36.4
+  },
+  {
+   "name": "Wet cloth",
+   "t0": 36.4,
+   "t1": 40.72
+  },
+  {
+   "name": "Evening + refill",
+   "t0": 40.72,
+   "t1": 44.96
+  },
+  {
+   "name": "Fun fact",
+   "t0": 44.96,
+   "t1": 49.92
+  },
+  {
+   "name": "Weeks fresh",
+   "t0": 49.92,
+   "t1": 53.68
+  },
+  {
+   "name": "Payoff",
+   "t0": 53.68,
+   "t1": 58.96
+  },
+  {
+   "name": "Ending",
+   "t0": 58.96,
+   "t1": 62.45
+  }
+ ],
+ "source": "VH_SCENES",
+ "at": "2026-11-20T11:02:50.041Z"
+}
