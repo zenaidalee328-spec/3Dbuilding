@@ -22,7 +22,7 @@
     for (let i = 0; i < p.count; i++) {
       const x = p.getX(i), z = p.getZ(i), y = hAt(x, z), d = Math.abs(x - rx(z)); p.setY(i, y);
       const n = B.fbm(x / 9 + 5, z / 9 + 2, 8, 3);
-      if (d < TOP + 0.1) c.setHSL(0.07, 0.48, lerp(0.3, 0.4, n) - 0.08 * sm((HALF + 0.4 - d) / 1));   // sandy bank
+      if (d < TOP + 0.1) c.setHSL(0.068, 0.5, lerp(0.24, 0.33, n) - 0.07 * sm((HALF + 0.6 - d) / 1.2));   // sandy bank
       else if (pathD(d)) c.setHSL(0.08, 0.28, lerp(0.38, 0.44, n));                                         // dirt path
       else c.setHSL(lerp(0.2, 0.25, n), 0.6, lerp(0.28, 0.38, n));                                        // meadow
       col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
@@ -32,7 +32,7 @@
   }
   // water: a flat teal sheet in the trench, clear near the banks
   { const g = new THREE.PlaneGeometry(14, 520, 1, 1); g.rotateX(-Math.PI / 2); g.translate(0, 0, -200);
-    const wm = new THREE.MeshStandardMaterial({ color: 0x0f6a70, envMapIntensity: 0.4, roughness: 0.12, metalness: 0, transparent: true, opacity: 0.9, envMapIntensity: 0.7 });
+    const wm = new THREE.MeshStandardMaterial({ color: 0x147c80, envMapIntensity: 0.3, roughness: 0.2, metalness: 0, transparent: true, opacity: 0.94 });
     const w = new THREE.Mesh(g, wm); w.position.y = WATER; w.receiveShadow = true; scene.add(w); }
 
   // ---------- sky: soft blue top to a warm pale horizon, and the same colour as haze
@@ -52,11 +52,11 @@
       const m = new THREE.Mesh(new THREE.ConeGeometry(r, h * 0.55, 24, 1), mm); m.position.set(x, h * 0.275 - 5, z); scene.add(m); }); }
 
   // ---------- light: low warm sun from the left, sky fill
-  const SUN = V(-0.62, 0.52, 0.35).normalize();
+  const SUN = V(-0.66, 0.4, 0.3).normalize();
   B.loadHDR('hdri/kloppenheim_06_2k.hdr', V(-0.62, 0.52, 0.35), 40);
-  const sun = new THREE.DirectionalLight(0xffd6a0, 3.1); sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096); sun.shadow.bias = -0.0002; sun.shadow.normalBias = 0.02; sun.shadow.radius = 3;
+  const sun = new THREE.DirectionalLight(0xffc98a, 3.6); sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096); sun.shadow.bias = -0.0002; sun.shadow.normalBias = 0.02; sun.shadow.radius = 3;
   Object.assign(sun.shadow.camera, { left: -30, right: 30, top: 30, bottom: -30, near: 1, far: 300 }); scene.add(sun, sun.target);
-  scene.add(new THREE.HemisphereLight(0xcfe0ff, 0x6a6a40, 0.3));
+  scene.add(new THREE.HemisphereLight(0xc4d8ff, 0x5a5a38, 0.22));
 
   // ---------- a rounded box (soft bevels catch the light like the reference's stone slabs)
   function rbox(w, h, d, r, seg = 4) {
@@ -72,8 +72,11 @@
   // ---------- the bridge: three slabs on two pillars
   const BZ = 0, deckY = 0.34;
   const bx0 = rx(BZ);
-  [-4.1, 0, 4.1].forEach((dx, i) => { const s = new THREE.Mesh(rbox(4.0, 0.36, 1.7, 0.06), STONE); s.position.set(bx0 + dx, deckY - 0.18, BZ); s.rotation.y = (hash(i) - 0.5) * 0.01; B.shadowed(s); scene.add(s); });
-  [-2.05, 2.05].forEach(dx => { const p = new THREE.Mesh(rbox(0.62, 2.7, 0.62, 0.05), STONE); p.position.set(bx0 + dx, DEEP + 1.35 - 0.1, BZ); B.shadowed(p); scene.add(p); });
+  [-4.1, 0, 4.1].forEach((dx, i) => { const s = new THREE.Mesh(rbox(4.0, 0.45, 1.7, 0.07), STONE); s.position.set(bx0 + dx, deckY - 0.225, BZ); s.rotation.y = (hash(i) - 0.5) * 0.01; B.shadowed(s); scene.add(s); });
+  const REFL = new THREE.MeshBasicMaterial({ color: 0x6f8a84, transparent: true, opacity: 0.55, fog: true });
+  [-2.05, 2.05].forEach(dx => { const p = new THREE.Mesh(rbox(0.7, 2.7, 0.7, 0.05), STONE); p.position.set(bx0 + dx, DEEP + 1.35 - 0.1, BZ); B.shadowed(p); scene.add(p);
+    const r = new THREE.Mesh(rbox(0.7, 1.9, 0.7, 0.05), REFL); r.position.set(bx0 + dx, WATER - 0.97, BZ); scene.add(r); });   // reflection
+  { const r = new THREE.Mesh(rbox(12.2, 0.45, 1.7, 0.06), REFL); r.position.set(bx0, WATER - (deckY - WATER) - 0.05, BZ); scene.add(r); }
 
   // ---------- grass: tapered, slightly bent blades, dark at the root, light at the tip; flowers; rocks + reeds on the banks
   const blade = (() => { const g = new THREE.PlaneGeometry(0.05, 0.36, 1, 4); g.translate(0, 0.18, 0); const p = g.attributes.position, cl = [];
@@ -112,21 +115,23 @@
   const cypM = new THREE.MeshStandardMaterial({ color: 0x5a8a3a, roughness: 0.85 });
   const cypG = (() => { const pts = []; for (let i = 0; i <= 16; i++) { const u = i / 16; pts.push(new THREE.Vector2(Math.max(0.02, 1.15 * Math.pow(Math.sin(Math.min(1, u * 1.15) * Math.PI * 0.62 + 0.25), 1.4) * (1 - u * 0.75)), u * 7)); }
     const g = new THREE.LatheGeometry(pts, 20); g.translate(0, 1.2, 0); return g; })();
-  const domeG = new THREE.SphereGeometry(1, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.58);
-  const strandG = new THREE.PlaneGeometry(0.07, 1, 1, 3); strandG.translate(0, -0.5, 0);
+  const domeG = (() => { const g = new THREE.IcosahedronGeometry(1, 4), p = g.attributes.position, v = new THREE.Vector3();   // lumpy leafy crown
+    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i); const n = 1 + 0.16 * (B.fbm(v.x * 0.9 + 2, v.z * 0.9 + v.y * 0.7 + 5, 4, 3) - 0.5) * 2 + 0.05 * (hash(i) - 0.5); if (v.y < -0.1) v.y *= 0.3; v.multiplyScalar(n); p.setXYZ(i, v.x, v.y, v.z); }
+    g.computeVertexNormals(); return g; })();
+  const strandG = new THREE.PlaneGeometry(0.11, 1, 1, 4); strandG.translate(0, -0.5, 0); { const p = strandG.attributes.position; for (let i = 0; i < p.count; i++) p.setX(i, p.getX(i) * (0.25 + 0.75 * (1 + p.getY(i)))); strandG.computeVertexNormals(); }   // tapers to a tip
   const willows = [], cyps = [];
   for (let i = 0; i < 70; i++) { const z = 6 - i * 3.2 - hash(i) * 2, side = i % 2 ? 1 : -1, d = 7.5 + hash(i * 3) * 6 + (i % 4 < 2 ? 0 : 5);
     const x = rx(z) + side * d; if (z > -6 && Math.abs(x - 0.8) < 9) continue; (hash(i * 7) < 0.55 ? willows : cyps).push([x, hAt(x, z), z, 0.85 + 0.4 * hash(i * 9)]); }
   for (let i = 0; i < 40; i++) { const z = -10 - hash(i * 4.4) * 140, x = (hash(i * 5.5) < 0.5 ? -1 : 1) * (22 + hash(i * 6.6) * 30); cyps.push([x + rx(z), hAt(x + rx(z), z), z, 0.8 + 0.5 * hash(i)]); }
   const tIM = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.16, 0.24, 1, 8), trunkM, willows.length + cyps.length), dIM = new THREE.InstancedMesh(domeG, wDomeM, willows.length * 3), cIM = new THREE.InstancedMesh(cypG, cypM, cyps.length);
-  const NS = 260, sIM = new THREE.InstancedMesh(strandG, strandM, willows.length * NS);
+  const NS = 480, sIM = new THREE.InstancedMesh(strandG, strandM, willows.length * NS);
   willows.forEach(([x, y, z, s], i) => {
     M4.compose(V(x, y + 1.5 * s, z), Q.identity(), V(s, 3 * s, s)); tIM.setMatrixAt(i, M4);
     const top = y + 3.2 * s, R = 2.3 * s; for (let q = 0; q < 3; q++) { const a = hash(i * 5 + q) * 6.28, o = q ? R * 0.38 : 0, rs = q ? 0.68 : 1; M4.compose(V(x + Math.cos(a) * o, top + (q ? 0.5 * s : 0), z + Math.sin(a) * o), Q.identity(), V(R * rs, 1.5 * s * rs * 1.1, R * rs));
       dIM.setMatrixAt(i * 3 + q, M4); dIM.setColorAt(i * 3 + q, C.setHSL(0.2 + 0.03 * hash(i + q), 0.42, 0.36 + 0.07 * hash(i * 2 + q))); }
     for (let j = 0; j < NS; j++) { const a = hash(i * 31 + j) * 6.283, rr = R * (0.35 + 0.68 * Math.sqrt(hash(i * 17 + j * 3))), hy = top + 1.5 * s * Math.sqrt(Math.max(0, 1 - (rr / R) ** 2)) * 0.85;
-      M4.compose(V(x + Math.cos(a) * rr, hy, z + Math.sin(a) * rr), Q.setFromEuler(E.set((hash(j * 13 + i) - 0.5) * 0.12, -a + Math.PI / 2, (hash(j * 19 + i) - 0.5) * 0.12)), V(1.8, Math.max(0.8, (hy - y) * (0.72 + 0.22 * hash(j * 7 + i))), 1)); sIM.setMatrixAt(i * NS + j, M4);
-      sIM.setColorAt(i * NS + j, C.setHSL(0.19 + 0.03 * hash(j + i), 0.4, 0.42 + 0.14 * hash(j * 3 + i))); } });
+      M4.compose(V(x + Math.cos(a) * rr, hy, z + Math.sin(a) * rr), Q.setFromEuler(E.set(0.1 + 0.08 * hash(j * 13 + i), -a + Math.PI / 2, (hash(j * 19 + i) - 0.5) * 0.1, 'YXZ')), V(1, Math.max(0.6, (hy - y) * (0.25 + 0.65 * Math.pow(hash(j * 7 + i), 0.7))), 1)); sIM.setMatrixAt(i * NS + j, M4);
+      sIM.setColorAt(i * NS + j, C.setHSL(0.2 + 0.04 * hash(j + i), 0.42, 0.3 + 0.2 * hash(j * 3 + i))); } });
   cyps.forEach(([x, y, z, s], i) => { M4.compose(V(x, y + 0.6 * s, z), Q.identity(), V(s, 1.2 * s, s)); tIM.setMatrixAt(willows.length + i, M4);
     M4.compose(V(x, y, z), Q.identity(), V(s, s * (0.9 + 0.4 * hash(i * 3)), s)); cIM.setMatrixAt(i, M4); cIM.setColorAt(i, C.setHSL(0.25 + 0.03 * hash(i), 0.32, 0.3 + 0.08 * hash(i * 5))); });
   [tIM, dIM, cIM, sIM].forEach(m => { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; scene.add(m); });
@@ -162,6 +167,7 @@
     sun.target.position.set(bx0, 0, -8); sun.position.copy(sun.target.position).add(SUN.clone().multiplyScalar(120));
     Object.assign(B.POST, { focus: P.distanceTo(V(hx, 1, BZ)), aperture: 0.16, maxBlur: 9, bloom: 0.18, thr: 1.3, sat: 1.14, con: 1.14, exp: 0.95, ao: 1.2, aoR: 0.7, mb: [0, 0] });
   }
-  B.run({ update, overlay: () => B.vignette(0.1), captions: 'center', captionOpts: { font: 'Poppins', size: 64, y: H * 0.5 }, fonts: [['Poppins', 'fonts/Poppins-ExtraBold.ttf']],
+  const dimEnv = () => scene.traverse(o => { if (o.material && o.material.isMeshStandardMaterial && o.material.envMapIntensity === 1) o.material.envMapIntensity = 0.4; });
+  B.run({ ready: dimEnv, update, overlay: () => B.vignette(0.1), captions: 'center', captionOpts: { font: 'Poppins', size: 64, y: H * 0.5 }, fonts: [['Poppins', 'fonts/Poppins-ExtraBold.ttf']],
     hdriBackground: false, scenes: [['Look test', 0, DUR]], warm: [1] });
 })();
