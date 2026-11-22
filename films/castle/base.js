@@ -42,11 +42,11 @@
   R.localClippingEnabled = true;
   if ('useLegacyLights' in R) R.useLegacyLights = false;
   const srgb = B.srgb = tex => { if ('colorSpace' in tex) tex.colorSpace = THREE.SRGBColorSpace; else tex.encoding = THREE.sRGBEncoding; return tex; };
-  const POST = B.POST = { focus: 10, aperture: 0.3, maxBlur: 12, bloom: 0.45, thr: 1.0, sat: 1.2, con: 1.06 };
+  const POST = B.POST = { focus: 10, aperture: 0.3, maxBlur: 12, bloom: 0.45, thr: 1.0, sat: 1.2, con: 1.06, ao: 0, aoR: 0.8 };   // ao: ambient-occlusion strength (0 = off), aoR: its radius in metres
   const rtOpt = { type: THREE.HalfFloatType, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false };
   const rtMain = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType, samples: 4 });
   rtMain.depthTexture = new THREE.DepthTexture(W, H); rtMain.depthTexture.type = THREE.UnsignedIntType;
-  const rtDof = new THREE.WebGLRenderTarget(W, H, rtOpt);
+  const rtDof = new THREE.WebGLRenderTarget(W, H, rtOpt), rtAO = new THREE.WebGLRenderTarget(W, H, rtOpt);
   const BW = W / 4, BH = H / 4;
   const rtB = [new THREE.WebGLRenderTarget(BW, BH, rtOpt), new THREE.WebGLRenderTarget(BW, BH, rtOpt)];
   const rtC = [new THREE.WebGLRenderTarget(BW / 2, BH / 2, rtOpt), new THREE.WebGLRenderTarget(BW / 2, BH / 2, rtOpt)];
@@ -54,6 +54,25 @@
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2)); quad.frustumCulled = false; postScene.add(quad);
   const QV = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }';
   const pmat = (fs, uniforms, tone) => new THREE.ShaderMaterial({ vertexShader: QV, fragmentShader: fs, uniforms, depthTest: false, depthWrite: false, toneMapped: !!tone });
+  // screen-space ambient occlusion from the depth buffer: soft dark where things meet (feet on a bridge, a pillar in water)
+  const aoMat = pmat(`uniform sampler2D tColor, tDepth; uniform mat4 projInv; uniform float aoR, aoAmt, py; varying vec2 vUv;
+    vec3 vpos(vec2 uv){ float d = texture2D(tDepth, uv).x; vec4 v = projInv * vec4(uv * 2.0 - 1.0, d * 2.0 - 1.0, 1.0); return v.xyz / v.w; }
+    float h12(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+    void main(){
+      vec3 col = texture2D(tColor, vUv).rgb; float d0 = texture2D(tDepth, vUv).x;
+      if (d0 >= 0.99999 || aoAmt <= 0.0) { gl_FragColor = vec4(col, 1.0); return; }
+      vec3 P = vpos(vUv), N = normalize(cross(dFdx(P), dFdy(P)));
+      float rpx = aoR * py / max(-P.z, 0.1), occ = 0.0, a0 = h12(gl_FragCoord.xy) * 6.2832;
+      for (int i = 0; i < 16; i++) {
+        float fi = (float(i) + 0.5) / 16.0, a = a0 + float(i) * 2.39996, r = rpx * fi;
+        vec2 uv = vUv + vec2(cos(a), sin(a)) * r / vec2(${W}.0, ${H}.0);
+        vec3 v = vpos(uv) - P; float dd = dot(v, v);
+        occ += max(0.0, dot(N, v) - 0.02 * -P.z) / (dd + 0.01) * (1.0 - smoothstep(aoR * 0.5, aoR * 1.6, sqrt(dd)));
+      }
+      float ao = clamp(1.0 - aoAmt * occ / 16.0 * aoR, 0.0, 1.0);
+      gl_FragColor = vec4(col * mix(1.0, ao, 0.9), 1.0);
+    }`, { tColor: { value: rtMain.texture }, tDepth: { value: rtMain.depthTexture }, projInv: { value: new THREE.Matrix4() }, aoR: { value: 0.8 }, aoAmt: { value: 0 }, py: { value: 1 } });
+  aoMat.extensions = { derivatives: true };
   const dofMat = pmat(`#include <packing>
     uniform sampler2D tColor, tDepth; uniform float near, far, focus, aperture, maxBlur; uniform vec2 px; varying vec2 vUv;
     float vz(vec2 uv){ return -perspectiveDepthToViewZ(texture2D(tDepth, uv).x, near, far); }
@@ -100,6 +119,9 @@
     blurMat.uniforms.t.value = rts[1].texture; blurMat.uniforms.dir.value.set(0, 1 / h); pass(blurMat, rts[0]); } }
   function renderPost(scene, cam) {
     R.setRenderTarget(rtMain); R.render(scene, cam);
+    aoMat.uniforms.aoAmt.value = POST.ao; aoMat.uniforms.aoR.value = POST.aoR; aoMat.uniforms.projInv.value.copy(cam.projectionMatrixInverse);
+    aoMat.uniforms.py.value = cam.projectionMatrix.elements[5] * H / 2;
+    if (POST.ao > 0) { pass(aoMat, rtAO); dofMat.uniforms.tColor.value = rtAO.texture; } else dofMat.uniforms.tColor.value = rtMain.texture;
     dofMat.uniforms.near.value = cam.near; dofMat.uniforms.far.value = cam.far;
     dofMat.uniforms.focus.value = POST.focus; dofMat.uniforms.aperture.value = POST.aperture; dofMat.uniforms.maxBlur.value = POST.maxBlur;
     pass(dofMat, rtDof);

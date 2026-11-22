@@ -5,11 +5,11 @@ PASS  words: 211  (reference 210-270)
 PASS  words_per_s: 3.8  (reference 3.7-4.3)
 PASS  first_word_s: 0.22 s  (reference 0-0.3 s)
 PASS  end_hold_s: 0.32 s  (reference 0.1-0.7 s)
-FAIL  speed_max: 98.8 px/f  (reference 0-90 px/f)
-FAIL  speed_p90: 29.5 px/f  (reference 0-25 px/f)
-PASS  accel_p99: 6.01  (reference 0-9)
-FAIL  still_or_slow_pct: 64 %  (reference 65-100 %)
-PASS  fast_moves: 11  (reference 6-14)
+FAIL  speed_max: 935.9 px/f  (reference 0-90 px/f)
+PASS  speed_p90: 19.3 px/f  (reference 0-25 px/f)
+FAIL  accel_p99: 12.6  (reference 0-9)
+PASS  still_or_slow_pct: 75 %  (reference 65-100 %)
+PASS  fast_moves: 10  (reference 6-14)
 PASS  loudness_LUFS: -10.0  (reference -11--6)
 
 ```json
@@ -21,32 +21,27 @@ PASS  loudness_LUFS: -10.0  (reference -11--6)
  "end_hold_s": 0.32,
  "pauses_over_0.25s": [],
  "camera": {
-  "speed_median": 1.5,
-  "speed_p90": 29.5,
-  "speed_max": 98.8,
-  "accel_p99": 6.01,
-  "still_or_slow_pct": 64,
-  "fast_moves": 11,
+  "speed_median": 0.0,
+  "speed_p90": 19.3,
+  "speed_max": 935.9,
+  "accel_p99": 12.6,
+  "still_or_slow_pct": 75,
+  "fast_moves": 10,
   "moves_start_length_peak": [
    [
-    3.3,
-    1.63,
-    27.6
+    3.43,
+    1.47,
+    21.2
    ],
    [
-    6.4,
-    1.43,
-    49.6
+    6.03,
+    1.6,
+    268.9
    ],
    [
-    8.33,
-    1.37,
-    79.6
-   ],
-   [
-    13.5,
-    1.7,
-    98.8
+    14.1,
+    0.03,
+    935.9
    ],
    [
     18.57,
@@ -69,19 +64,19 @@ PASS  loudness_LUFS: -10.0  (reference -11--6)
     27.4
    ],
    [
-    42.6,
-    1.8,
-    34.6
+    43.07,
+    1.47,
+    19.8
    ],
    [
-    45.73,
+    45.63,
+    1.53,
+    19.7
+   ],
+   [
+    49.53,
     2.13,
-    37.7
-   ],
-   [
-    49.57,
-    2.17,
-    23.2
+    15.4
    ]
   ],
   "camera_above_target_m_median": 0.0

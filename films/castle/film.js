@@ -37,19 +37,27 @@
   }
   const SUN = V(0.6, 0.33, 0.73).normalize();                                     // warm, low sun (long shadows)
   B.loadHDR('hdri/kloppenheim_06_2k.hdr', SUN, 32);
-  B.fogColor.set(0xe6dccd); scene.fog = new THREE.Fog(0xe6dccd, 140, 900);
-  const sun = new THREE.DirectionalLight(0xffdcb8, 3.1); sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096);
+  B.fogColor.set(0xc9d2dc); scene.fog = new THREE.Fog(0xc9d2dc, 150, 950);
+  { const sm2 = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false, uniforms: { top: { value: new THREE.Color(0x3f7cc8) }, hor: { value: new THREE.Color(0xe8dfd6) } },
+      vertexShader: 'varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: 'uniform vec3 top, hor; varying vec3 vP; void main(){ float h = clamp(normalize(vP).y, 0.0, 1.0); gl_FragColor = vec4(mix(hor, top, pow(h, 0.32)), 1.0); }' });
+    const sky = new THREE.Mesh(new THREE.SphereGeometry(1500, 32, 16), sm2); sky.renderOrder = -1; scene.add(sky);
+    for (let i = 0; i < 14; i++) { const c = new THREE.Sprite(new THREE.SpriteMaterial({ map: B.blobTex, color: 0xffffff, transparent: true, opacity: 0.5, depthWrite: false, fog: false }));
+      const a = hash(i * 3.3) * 6.283; c.position.set(Math.cos(a) * 900, 220 + hash(i * 3) * 160, Math.sin(a) * 900); c.scale.set(260 + hash(i * 5) * 200, 70 + hash(i * 9) * 40, 1); scene.add(c); }
+    const mm = new THREE.MeshStandardMaterial({ color: 0x8e9fb8, roughness: 1, envMapIntensity: 0.3 });   // far hazy mountains all round
+    for (let i = 0; i < 9; i++) { const a = i / 9 * 6.283 + 0.3, r = 180 + 120 * hash(i * 7), h = 40 + 50 * hash(i * 2); const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 24), mm); m.position.set(Math.cos(a) * 820, h / 2 - 8, Math.sin(a) * 820); scene.add(m); } }
+  const sun = new THREE.DirectionalLight(0xffd8aa, 3.3); sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096);
   sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.03; scene.add(sun, sun.target);
-  const hemi = new THREE.HemisphereLight(0xdce8ff, 0x7a6448, 0.65); scene.add(hemi);
-  const fill = new THREE.DirectionalLight(0xfff0e0, 0.6); fill.position.set(-30, 25, 60); scene.add(fill);   // front fill: faces coming up the hill are not black
+  const hemi = new THREE.HemisphereLight(0xc4d8ff, 0x5a5a38, 0.38); scene.add(hemi);
+  const fill = new THREE.DirectionalLight(0xfff0e0, 0.3); fill.position.set(-30, 25, 60); scene.add(fill);   // front fill: faces coming up the hill are not black
 
   // grey castle stone: blocks in courses (made here), with the brick's bumps for relief
   const ASH = B.procTex(512, (u, v, i, j) => { const rows = 6, row = Math.floor(v * rows), off = row % 2 ? 0.5 / 3 : 0, cu = (u + off) * 3, col = Math.floor(cu);
     const fu = cu - col, fv = v * rows - row, edge = Math.min(fu * 1.4, (1 - fu) * 1.4, fv, 1 - fv), mort = edge < 0.05 ? 1 : 0;
     const sh = 0.82 + 0.2 * hash(row * 13 + col * 7 + 3) + 0.12 * (B.fbm(u, v, 16, 4) - 0.5);
-    const l = mort ? 0.55 : sh; return [196 * l, 190 * l, 178 * l, mort ? 0 : 0.5 + 0.5 * B.fbm(u * 2, v * 2, 16, 3)]; }, 3, [1, 1]);
+    const l = mort ? 0.86 : sh * 0.97 + 0.03; return [226 * l, 217 * l, 200 * l, mort ? 0 : 0.5 + 0.5 * B.fbm(u * 2, v * 2, 16, 3)]; }, 3, [1, 1]);
   const BRICK = (rx, ry) => { const m = B.sweepify(new THREE.MeshStandardMaterial({ map: ASH.map.clone(), normalMap: ASH.normalMap.clone(), roughness: 0.9 }));
-    [m.map, m.normalMap].forEach(tx => { tx.repeat.set(rx * 2.5, ry * 2.5); tx.needsUpdate = true; }); return m; };
+    [m.map, m.normalMap].forEach(tx => { tx.repeat.set(rx * 1.0, ry * 1.0); tx.needsUpdate = true; }); return m; };
   const WOOD = B.pbr('brown_planks_09', 1, 1, { color: 0xc8a888 });
   {
     const S = 420, N = 300, geo = new THREE.PlaneGeometry(S, S, N, N); geo.rotateX(-Math.PI / 2);
@@ -57,20 +65,21 @@
     for (let i = 0; i < p.count; i++) {
       const x = p.getX(i), z = p.getZ(i), y = hAt(x, z), d = sq(x, z); p.setY(i, y);
       const m = B.fbm(x / 40 + 0.3, z / 40 + 0.1, 8, 3);
-      let cc = [lerp(0.55, 0.72, m), lerp(0.92, 1.0, m), lerp(0.45, 0.52, m)];
-      if (d < 14) cc = cc.map((v, j) => lerp(v, [1.0, 0.86, 0.68][j], 0.75));               // trampled courtyard
-      if (d > M0 - 0.4 && d < M1 + 0.4) cc = [0.78, 0.66, 0.52];                             // the ditch walls
+      const C3 = new THREE.Color().setHSL(lerp(0.2, 0.25, m), 0.6, lerp(0.28, 0.38, m));                     // painted meadow
+      if (d < 14) C3.setHSL(0.08, 0.3, lerp(0.32, 0.39, m));                                                   // trampled dirt yard
+      if (d > M0 - 0.4 && d < M1 + 0.4) C3.setHSL(0.068, 0.5, lerp(0.24, 0.33, m));                         // the ditch walls
+      const cc = [C3.r, C3.g, C3.b];
       col[i * 3] = cc[0]; col[i * 3 + 1] = cc[1]; col[i * 3 + 2] = cc[2];
     }
     geo.setAttribute('color', new THREE.BufferAttribute(col, 3)); geo.computeVertexNormals();
-    const tm = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: B.tex('aerial_grass_rock', 60, 60), normalMap: B.tex('aerial_grass_rock', 60, 60, 'nor_gl'), vertexColors: true, roughness: 0.95 }));
+    const tm = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
     tm.receiveShadow = true; scene.add(tm);
   }
   // the moat is hidden under a lid of grass until you dig it (four sides, one after another)
-  const LIDM = new THREE.MeshStandardMaterial({ map: B.tex('aerial_grass_rock', 4, 4), color: 0xa8d090, roughness: 0.95 });
+  const LIDM = new THREE.MeshStandardMaterial({ color: 0x55802e, roughness: 1 });
   const lids = [[0, -17, 38, 4], [17, 0, 4, 38], [0, 17, 38, 4], [-17, 0, 4, 38]].map(([x, z, w, d], i) => {
     const m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.6, d), LIDM); m.position.set(x, TOPY - 0.28, z); m.receiveShadow = true; scene.add(m); return m; });
-  const moatW = new THREE.Mesh(new THREE.RingGeometry(M0 - 0.2, M1 + 0.4, 4, 1, Math.PI / 4), new THREE.MeshStandardMaterial({ color: 0x2f7a8a, roughness: 0.08, envMapIntensity: 1.1, transparent: true, opacity: 0.92 }));
+  const moatW = new THREE.Mesh(new THREE.RingGeometry(M0 - 0.2, M1 + 0.4, 4, 1, Math.PI / 4), new THREE.MeshStandardMaterial({ color: 0x147c80, roughness: 0.2, envMapIntensity: 0.3, transparent: true, opacity: 0.94 }));
   moatW.rotation.x = -Math.PI / 2; moatW.scale.set(1.414 * 0.99, 1.414 * 0.99, 1); scene.add(moatW);
   const causeway = new THREE.Mesh(new THREE.BoxGeometry(4.4, MD + 0.3, M1 - M0 + 0.6), new THREE.MeshStandardMaterial({ map: B.tex('dry_ground_01', 1, 1), color: 0xc8a888, roughness: 1 }));
   causeway.position.set(0, TOPY - (MD + 0.3) / 2, (M0 + M1) / 2); causeway.receiveShadow = causeway.castShadow = true; scene.add(causeway);
@@ -155,7 +164,8 @@
         const im = new THREE.InstancedMesh(m.geometry, m.material, pl.length); im.castShadow = im.receiveShadow = true; im.frustumCulled = false;
         m.updateMatrixWorld(true); pl.forEach(([x, y, z, r, s], i) => { q.setFromAxisAngle(V(0, 1, 0), r); M.compose(V(x, y, z), q, V(s, s, s)).multiply(m.matrixWorld); im.setMatrixAt(i, M); });
         scene.add(im); }); set.visible = false; };
-    scatter(grassSet, 700, 13, 75, 0.9, 1.7, 11); scatter(fernSet, 130, 19.5, 70, 0.8, 1.4, 23);   // dense foreground grass scatter(rockSet, 6, 24, 60, 0.6, 1.2, 37);
+    grassSet.visible = fernSet.visible = false; scatter(rockSet, 6, 24, 60, 0.6, 1.2, 37);
+    blades();
     // trees: layered cypresses and round trees on the lower slope and plain
     const cy = [], ro = [];
     for (let i = 0; i < 500; i++) { const a = hash(i * 4.1) * 6.283, r = 40 + 160 * Math.sqrt(hash(i * 8.3)), x = Math.cos(a) * r, z = Math.sin(a) * r;
@@ -164,12 +174,30 @@
     const tc = new THREE.Color();
     const put = (geo, mat, list, vary) => { const im = new THREE.InstancedMesh(geo, mat, list.length); list.forEach(([x, y, z, s], i) => { M.compose(V(x, y - 0.2, z), q.setFromAxisAngle(V(0, 1, 0), s * 9), V(s, s * (0.85 + 0.35 * hash(i * 1.7)), s)); im.setMatrixAt(i, M);
       if (vary) im.setColorAt(i, tc.setHSL(0.2 + 0.09 * hash(i * 5.3), 0.45 + 0.2 * hash(i * 2.9), 0.32 + 0.16 * hash(i * 7.7))); }); im.castShadow = true; scene.add(im); };
-    const cyG = new THREE.CapsuleGeometry(1.1, 6, 4, 10); cyG.translate(0, 4.6, 0); const roG = new THREE.IcosahedronGeometry(2.6, 3); roG.translate(0, 4.2, 0);
+    const cyG = (() => { const pts = []; for (let i = 0; i <= 16; i++) { const u = i / 16; pts.push(new THREE.Vector2(Math.max(0.02, 1.4 * Math.pow(Math.sin(Math.min(1, u * 1.15) * Math.PI * 0.62 + 0.25), 1.4) * (1 - u * 0.75)), u * 8)); }
+      const g = new THREE.LatheGeometry(pts, 20); g.translate(0, 1.4, 0); return g; })(); const roG = new THREE.IcosahedronGeometry(2.6, 4); roG.translate(0, 4.2, 0);
     const trG = new THREE.CylinderGeometry(0.2, 0.3, 2.4, 6); trG.translate(0, 1.2, 0);
     { const p = roG.attributes.position; for (let i = 0; i < p.count; i++) { const v = V(p.getX(i), p.getY(i) - 4.2, p.getZ(i)), n = 1 + 0.18 * (B.fbm(v.x * 0.3 + 3, v.z * 0.3 + v.y * 0.2, 4, 3) - 0.5) * 2; p.setXYZ(i, v.x * n, v.y * n * 0.85 + 4.2, v.z * n); } roG.computeVertexNormals(); }
-    put(cyG, leaf(0x4a7a3a), cy, true); put(roG, leaf(0x6a9448), ro, true);   // each tree its own green put(trG, leaf(0x5a4232), cy.concat(ro));
+    put(cyG, leaf(0x557a3a), cy, true); put(roG, leaf(0x6a8f3c), ro, true);   // each tree its own green
+    put(trG, leaf(0x5a4232), cy.concat(ro));
   }
 
+  function blades() {
+    const blade = (() => { const g = new THREE.PlaneGeometry(0.05, 0.36, 1, 4); g.translate(0, 0.18, 0); const p = g.attributes.position, cl = [];
+      for (let i = 0; i < p.count; i++) { const y = p.getY(i) / 0.36; p.setX(i, p.getX(i) * (1 - y * 0.9)); p.setZ(i, y * y * 0.08); cl.push(0.35 + 0.65 * y, 0.35 + 0.65 * y, 0.35 + 0.65 * y); }
+      g.setAttribute('color', new THREE.Float32BufferAttribute(cl, 3)); g.computeVertexNormals(); return g; })();
+    const GM = new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: 0.9 }), M = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), cc = new THREE.Color();
+    const ok = (x, z) => { const d = sq(x, z); return d > 14.4 && !(d > M0 - 0.6 && d < M1 + 0.6) && !(Math.abs(x) < 2.6 && z > HW && z < M1 + 1); };
+    const put = (geo, mat, n, rmin, rmax, seed, sc, col) => { const im = new THREE.InstancedMesh(geo, mat, n); let c = 0;
+      for (let i = 0; c < n && i < n * 4; i++) { const a = hash(seed + i * 1.37) * 6.283, r = rmin + (rmax - rmin) * Math.pow(hash(seed + i * 2.11), 1.5), x = Math.cos(a) * r, z = Math.sin(a) * r; if (!ok(x, z)) continue;
+        q.setFromEuler(e.set((hash(i * 3) - 0.5) * 0.5, hash(i * 5) * 6.28, (hash(i * 7) - 0.5) * 0.5)); const k2 = sc(i); M.compose(V(x, hAt(x, z), z), q, V(k2, k2 * (0.7 + hash(i * 11) * 0.9), k2)); im.setMatrixAt(c, M);
+        if (col) im.setColorAt(c, col(i, cc)); c++; }
+      im.count = c; im.receiveShadow = true; im.frustumCulled = false; scene.add(im); return im; };
+    put(blade, GM, 200000, 13, 60, 11, () => 1.1, (i, c) => c.setHSL(0.22 + 0.06 * hash(i * 13), 0.55, 0.32 + 0.12 * hash(i * 17)));
+    put(blade, GM, 80000, 55, 140, 77, () => 1.8, (i, c) => c.setHSL(0.22 + 0.05 * hash(i * 13), 0.5, 0.32 + 0.1 * hash(i * 17)));
+    const FL = [0xffffff, 0xfff1a8, 0xffc8e0, 0xffffff];
+    put(new THREE.IcosahedronGeometry(0.04, 1), new THREE.MeshStandardMaterial({ roughness: 0.6 }), 7000, 15, 55, 33, () => 1, (i, c) => c.set(FL[i % 4])).position.y = 0.34;
+  }
   // ---------- sprites: dust, drops, fire, steam (a fixed pool; each a pure function of t)
   const mkPool = (n, add) => Array.from({ length: n }, () => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: B.blobTex, transparent: true, depthWrite: false, blending: add ? THREE.AdditiveBlending : THREE.NormalBlending })); s.visible = false; scene.add(s); return s; });
   const SPR = mkPool(600, false), FIRE = mkPool(420, true); let sN = 0, fN = 0;
@@ -248,14 +276,14 @@
     t => t < T.fire - 0.5 ? [['walk', t * 0.8 + i * 0.4, 1]] : [['point', t + i * 0.3, 1]], Object.assign({ torch: true, torchT: T.enemies - 0.1, throwT: THROW(i) }, FOE));
   // 2) the fence: you run over and build it; it burns, you back off scared, then the idea (standing, thinking)
   const FX0 = 3, FZ = HW - 1.3;
-  add(T.fence0 + 0.1, T.cong1 - 0.5, t => {
+  add(T.fence0 + 0.1, T.cong1 + 2.4, t => {
     if (t < T.fence + 0.3) { const u = k(t, T.fence0 + 0.1, T.fence + 0.3); return [lerp(2.6, FX0, u), TOPY, lerp(2.2, FZ, u), 0]; }
-    const u = eio(k(t, T.fire - 0.3, T.genius - 0.5)), turn = eio(k(t, T.genius - 0.7, T.genius - 0.3)); return [FX0, TOPY, lerp(FZ, 6.5, u), 180 * turn]; },
-  t => t < T.fence + 0.3 ? [['run', t * 1.3, 1]] : t < T.fire - 0.3 ? [['push', t, 1]] : t < T.genius - 0.5 ? [['scared', t, 1]] : [['think', t - T.genius + 0.5, 1]], HERO);
+    const u = eio(k(t, T.fire - 0.3, T.genius - 0.5)), turn = eio(k(t, T.genius - 0.7, T.genius - 0.3)); return [FX0, TOPY, lerp(FZ, 3.2, u), 160 + 200 * turn]; },
+  t => t < T.fence + 0.3 ? [['run', t * 1.3, 1]] : t < T.fire - 0.3 ? [['push', t, 1]] : t < T.genius - 0.5 ? [['scared', t, 1]] : t < T.cong1 - 0.1 ? [['think', t - T.genius + 0.5, 1]] : [['cheer', t - T.cong1, 1]], HERO);
   // 3) the fort: you cheer on the wall, friends too (only once the wall is up: nobody floats)
   const WUP = T.wall + 0.4;
-  add(WUP, T.ladders, on(-5, WY, HW - 0.6, 180), t => [['cheer', t - T.cong1, 1]], HERO);
-  [[-8, 1], [-2.8, 2]].forEach(([x, j]) => add(WUP, T.top + 0.3, on(x, WY, HW - 0.6, 180), t => [['cheer', t - T.cong1 + j * 0.6, 1]], ally(j)));
+  add(WUP, T.ladders, on(-0.5, WY, -HW + 0.6, 0), t => [['cheer', t - T.cong1, 1]], ally(5));
+  [[-3.6, 1], [2.4, 2]].forEach(([x, j]) => add(WUP, T.top + 0.3, on(x, WY, -HW + 0.6, 0), t => [['cheer', t - T.cong1 + j * 0.6, 1]], ally(j)));
   // 4) ladders: three climbers
   [-7, -1.2, 6].forEach((x, i) => add(T.ladders - 0.2, T.dig + 0.2, t => { const u = k(t, T.ladders + 0.2 + i * 0.25, T.top + 0.4); return [x, TOPY + u * 6.2, HW + 2.0 - u * 0.9, 180]; },
     loop('climb', i * 0.5, 1.1), FOE));
@@ -328,11 +356,10 @@
   // round 2: fewer, closer shots (no 50 m flights), no shot inside a wall, grill + drawbridge in one 3/4 shot
   const SHOTS = [
     [0.0, [3.6, Y + 1.8, -3.5], [1.2, Y + 0.3, 8], 46],                  // asleep by the fire; torches on the slope behind
-    [T.fence + 0.4, [7, Y + 2, 4], [3, Y + 2.6, HW], 44],                // you build the fence; torches + fire arrows fly over it
-    [T.genius - 0.6, [5.6, Y + 1.6, 3.6], [3, Y + 1.5, 6.5], 42],        // your idea (chest height, ~3.5 m, burnt fence behind)
-    [T.wood, [-3, Y + 4, -6], [-7, Y + 3.5, HW], 50],                // the whole wall in frame, ground to teeth: it rises course by course -> CONGRATULATIONS
-    [T.cong1 + 1.5, [-6, Y + 15, 1], [-6, Y + 5, HW + 16], 46],          // crane up behind the cheering people: over the wall to the slope outside
-    [T.ladders + 1.0, [-12, Y + 1.8, 24], [-2, Y + 3, HW + 3], 44],      // "you just built a fort": crane up over the new wall, down outside to the ladders
+    [T.fence + 0.4, [8, Y + 2.4, 0.5], [2.5, Y + 2.4, HW], 46],                // you build the fence; torches + fire arrows fly over it
+    [T.genius - 0.6, [3.8, Y + 1.9, 9.6], [2.2, Y + 2.3, -4], 50],       // idea in front, the back (sunlit) wall rises behind him
+    [T.cong1 + 0.9, [3.8, Y + 1.9, 9.6], [2.2, Y + 2.3, -4], 50],           // hold through "Congratulations": the cheering on the wall
+    [T.ladders - 0.15, [-12, Y + 1.8, 24], [-2, Y + 3, HW + 3], 44, 'cut'],   // hard cut on "But": outside, the ladders
     [T.short - 0.4, [-11, Y + 1.4, 26], [-6, Y + 1.5, 16.5], 42],         // the ladder stops short of the wall, slides in
     [T.archers - 0.1, [5.4, hAt(5.4, 37.2) + 1.9, 37.2], [1, WY - 0.5, HW + 1], 44], // over an archer's shoulder
     [T.teeth - 0.1, [5, WY + 2.2, 21], [1, WY + 0.6, HW + 0.5], 42],     // stone teeth along the top
@@ -341,12 +368,11 @@
     [T.cong2, [20, Y + 0.5, 26], [6, Y + 8, 6], 48],                   // CONGRATULATIONS (low, up at a tower)
     [T.gate - 0.2, [4, Y + 1.6, 30], [0, Y + 2.5, HW + 2], 44],          // the gate, the ram coming
     [T.grill - 0.4, [8.5, Y + 2.4, 24], [0, Y + 2.4, HW + 1], 46],       // 3/4: the door breaks, the grill drops, the bridge lifts
-    [T.pour - 0.4, [2.5, WY + 4.5, HW - 5], [0, TOPY, HW + 7], 46],       // over the defender's shoulder: the pot tips onto the bank
-    [T.breakin - 0.3, [14, Y + 14, 22], [-1, Y + 1, 7], 50],              // one high 3/4 shot: they pour in, everyone runs to the keep
-    [T.door - 0.2, [5, Y + 2.2, 8.5], [0, Y + 6.5, 3], 50],             // the keep rises, its door high (inside, low)
-    [T.end, [7, Y - 1.5, 42], [0, Y + 8, 0], 42],                        // CONGRATULATIONS (low and far)
-    [T.castle - 0.2, [16, Y + 10, 52], [0, Y + 5, 0], 42],               // rising a little on the castle
-  ].map(([t, p, q, f]) => ({ t, p: V(...p), q: V(...q), f }));
+    [T.pour - 0.4, [14, Y + 1.5, 22], [0, WY - 0.5, HW + 1], 46],       // over the defender's shoulder: the pot tips onto the bank
+    [T.breakin - 0.3, [0.5, Y + 16, 27], [0, Y + 1, 4], 50],              // one high 3/4 shot: they pour in, everyone runs to the keep
+    [T.door - 0.2, [4.5, Y + 2.0, 8.8], [0, Y + 6, 2.5], 55],             // the keep rises, its door high (inside, low)
+    [T.castle, [16, Y + 10, 52], [0, Y + 5, 0], 42],               // rising a little on the castle
+  ].map(([t, p, q, f, cut]) => ({ t, p: V(...p), q: V(...q), f, cut: !!cut }));
   const ease = x => 0.5 - 0.5 * Math.cos(Math.PI * clamp(x));
   // what stands where at time t (the camera must stay out of it)
   const WALL0 = c('wall', 'replace'), wuAt = t => k(t, WALL0, T.wall + 0.35), goneAt = t => sm(k(t, T.wood, T.wood + 0.6)), kuAt = t => eout(k(t, T.tower - 0.5, T.tower + 0.5));
@@ -364,6 +390,7 @@
     const a = SHOTS[i], b = SHOTS[i + 1];
     const push = (s, u) => ({ p: s.p.clone().lerp(s.q, 0.03 * u), q: s.q.clone(), f: s.f });
     if (!b) { const R = push(a, ease(k(t, a.t, DUR))); clearance(R.p, t); return R; }
+    if (b.cut) { const R = push(a, ease(k(t, a.t, b.t))); clearance(R.p, t); return R; }   // a hard cut: hold, then jump on b.t
     const dist = a.p.distanceTo(b.p), M = clamp(1.3 + dist / 18, 1.5, 2.8), gap = b.t - a.t, mv = Math.min(M, gap * 0.75), ts = b.t - mv;
     const A = push(a, ease(k(t, a.t, ts)));
     if (t < ts) { clearance(A.p, t); return A; }
@@ -392,7 +419,7 @@
     const C = placeCam(t), cd = C.p.distanceTo(C.q);
     const span = clamp(cd * 0.9, 14, 90); sun.target.position.copy(C.q); sun.position.copy(C.q).add(SUN.clone().multiplyScalar(200));
     Object.assign(sun.shadow.camera, { left: -span, right: span, top: span, bottom: -span, near: 20, far: 500 }); sun.shadow.camera.updateProjectionMatrix();
-    Object.assign(B.POST, { aperture: t < T.enemies ? 0.12 : 0.35, maxBlur: 12, bloom: 0.35, thr: 1.15, sat: 1.15, con: 1.06, exp: 1.0 });
+    Object.assign(B.POST, { aperture: t < T.enemies ? 0.12 : 0.25, maxBlur: 10, bloom: 0.18, thr: 1.3, sat: 1.08, con: 1.12, exp: 0.95, ao: 1.2, aoR: 0.9 });
     // camp
     const campOn = t < T.stone; tent.visible = logs.visible = campOn;
     if (t < T.wall) fireAt(t, FIREP, 0.9, 1);
@@ -457,7 +484,7 @@
     const su = eio(k(t, T.high + 0.1, T.high + 1.1)); stair.visible = ku > 0; stair.position.y = TOPY + 6 - 15.5 * (1 - ku); stair.rotation.x = su * rad(80);
     // gold sweeps ("it worked")
     const sweep = (t0, dur, a, b, w = 4, amt = 1.8) => { if (t < t0 || t > t0 + dur) return; const u = k(t, t0, t0 + dur); B.SWEEP.dir.set(0, 1, 0); B.SWEEP.pos = lerp(a, b, eio(u)); B.SWEEP.width = w; B.SWEEP.amt = amt * Math.sin(u * Math.PI); };
-    sweep(T.cong1 - 0.1, 1.4, TOPY - 1, WY + 2); sweep(T.cong2 - 0.1, 1.4, TOPY - 1, TOPY + 12, 3, 1.0); sweep(T.end - 0.1, 1.8, TOPY - 1, TOPY + 17, 5);
+    sweep(T.cong1 - 0.1, 1.4, TOPY - 1, WY + 2, 4, 0.7); sweep(T.cong2 - 0.1, 1.4, TOPY - 1, TOPY + 12, 3, 1.0); sweep(T.end - 0.1, 1.8, TOPY - 1, TOPY + 17, 5);
     castUpdate(t);
     for (let i = sN; i < SPR.length; i++) SPR[i].visible = false;
     for (let i = fN; i < FIRE.length; i++) FIRE[i].visible = false;
@@ -471,13 +498,14 @@
     g.beginPath(); for (let i = 0; i < 8; i++) { const r = i % 2 ? 9 : 34, an = i * Math.PI / 4; g.lineTo(Math.cos(an) * r, Math.sin(an) * r); } g.closePath(); g.fill(); g.restore(); }
   function overlay(t) {
     B.vignette(0.14);
-    sparkle(t, T.genius, V(3, TOPY + 2.15, 6.5));
+    sparkle(t, T.genius, V(3, TOPY + 2.15, 3.2));
     sparkle(t, T.brain - 0.1, V(HW - 3, WY + 2.15, HW - 0.6));
     B.tint(sm(k(t, T.fire - 0.5, T.fire + 0.3)) * (1 - sm(k(t, T.wall - 0.2, T.wall + 0.3))) * 0.25, '#ff7a2a', 'soft-light');
   }
 
-  B.run({ update, overlay, captions: 'center', captionOpts: { font: 'Poppins', size: 60, y: H * 0.5 }, fonts: [['Poppins', 'fonts/Poppins-ExtraBold.ttf']],
+  const dimEnv = () => scene.traverse(o => { if (o.material && o.material.isMeshStandardMaterial && o.material.envMapIntensity === 1) o.material.envMapIntensity = 0.4; });
+  B.run({ hdriBackground: false, update, overlay, captions: 'center', captionOpts: { font: 'Poppins', size: 60, y: H * 0.5 }, fonts: [['Poppins', 'fonts/Poppins-ExtraBold.ttf']],
     scenes: [['Hook: the camp', 0, T.fence0], ['The fence burns', T.fence0, L0('wall')], ['The stone wall', L0('wall'), L0('ladder')], ['Ladders and the moat', L0('ladder'), L0('arrows')],
       ['Archers and battlements', L0('arrows'), L0('corner')], ['Towers', L0('corner'), L0('gate')], ['The gate', L0('gate'), T.keep0], ['The keep', T.keep0, T.end], ['Congratulations', T.end, DUR]],
-    warm: [1, 15, 30, 45], ready: async () => { plant(); setupCast(); } });
+    warm: [1, 15, 30, 45], ready: async () => { plant(); setupCast(); dimEnv(); } });
 })();
