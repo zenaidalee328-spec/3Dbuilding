@@ -4,7 +4,7 @@ module.exports = (TL, c) => {
   return [
     ['music', 0, -32, TL.DUR + 1], ['wind', 0, -28, TL.DUR], ['birds', 0, -22, 4],
     ['soft_whoosh', c('hook', 'enemies') - 0.6, -12],
-    ...[0, 1, 2, 3, 4, 5].map(i => ['thud', L('fence') + 0.4 + i * 0.35, -16]), ['wind', c('fence', 'fire') - 0.3, -12, 2.5], ['concrete_thud', c('fence', 'fire') + 0.2, -16],
+    ...[0, 1, 2, 3, 4, 5].map(i => ['thud', L('fence') + 0.4 + i * 0.35, -16]), ['wind', c('fence', 'fire') - 0.3, -12, 2.5], ...[0, 1, 2].map(i => ['soft_whoosh', c('fence', 'fire') - 0.55 + i * 0.2, -9]), ['concrete_thud', c('fence', 'fire') + 0.2, -16],
     ['pop', c('wall', 'genius') - 0.15, -10], ...[0, 1, 2, 3, 4, 5].map(i => ['concrete_thud', c('wall', 'stone') + i * 0.2, -11]),
     ['birds', L('cong1'), -18, 2.5], ['soft_whoosh', c('ladder', 'ladders') - 0.5, -12], ['click', c('ladder', 'ladders'), -12], ['click', c('ladder', 'ladders') + 0.15, -12],
     ['soft_whoosh', c('moat', 'dig') - 0.6, -12], ...[0, 1, 2, 3].map(i => ['thud', c('moat', 'dig') + i * 0.4, -10]), ['water_fill', c('moat', 'water') - 0.2, -8, 2.5],
@@ -14,7 +14,7 @@ module.exports = (TL, c) => {
     ...[0, 1, 2].map(i => ['thud', c('corner', 'dig') + i * 0.35, -12]), ['concrete_thud', c('corner', 'under') + 0.2, -8],
     ['pop', c('towers', 'brain') - 0.3, -10], ...[0, 1, 2, 3].map(i => ['concrete_thud', c('towers', 'towers') + i * 0.25, -9]),
     ['birds', L('cong2'), -18, 2.5],
-    ['soft_whoosh', c('gate', 'gate') - 0.4, -12], ...[0, 1, 2].map(i => ['concrete_thud', c('gate', 'smash') + i * 0.45, -6]),
+    ['soft_whoosh', c('gate', 'gate') - 0.4, -12], ...[0, 1, 2, 3].map(i => ['concrete_thud', c('gate', 'smash') + i * 0.494, -6]), ['thud', c('gate', 'smash') + 1.48, -3], ['concrete_thud', c('gate', 'smash') + 1.5, -4],
     ['metal_clank', c('port', 'grill'), -6], ['pipe_clunk', c('port', 'drawbridge') + 0.5, -8], ['water_fill', c('port', 'drawbridge') + 1.0, -8, 1.5],
     ['water_fill', c('port', 'pour'), -7, 2.5], ['shower', c('port', 'boiling'), -16, 2],
     ['soft_whoosh', L('keep') + 0.3, -10], ...[0, 1, 2].map(i => ['concrete_thud', c('keep', 'tower') - 0.4 + i * 0.3, -10]), ['thud', c('keep', 'high') + 0.6, -10],

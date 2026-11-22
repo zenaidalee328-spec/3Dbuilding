@@ -7,3 +7,15 @@ Also: enemies with torches on the word "enemies"; hero builds the fence close; d
 
 ## Tech reviewer
 VERDICT: FIX. QA on castle_v1.mp4: black frames at 7.6 s, 9.3 s, 41.0 s, 42.6 s (camera passes inside the wall / gate during moves). Loudness -11.1 LUFS (target -11..-6; use two-pass loudnorm or +2 dB makeup). Camera: max 137 px/f at 0.7 s (56 m move fire->enemies: drop that shot), p90 48 (target 25), 18 fast moves (target <=14): merge ladders->dig, corners->brain, grill->bridge; moves shorter than 1.2 s at 10.8, 30.3, 40.3, 42.4, 44.0 s. Keep the camera out of wall boxes (clamp in placeCam). All beats land within 0.3 s of their words except enemies (0.9 s late) and the sleeping camp shown only 0.8 s.
+
+# Round 2 (2026-11-23)
+
+Applied all round-1 fixes (camera clearance out of walls/towers/keep, fewer and closer shots, torches flare on "enemies", hero builds the fence, torches + fire arrows over the fence, ladders short and sliding into the moat, diggers, thick arrows, guards duck, door bursts, ram on the causeway, defender + pot, break-in through the gate, stair rises with the keep, warm low sun, -10 LUFS).
+
+## Creative reviewer: 4/10 FIX FIRST
+Its sheets showed bugs that are now fixed: the Thinking clip lay face down (now Breathing Idle), the ram and carriers were hidden in the ditch under the causeway (now on the causeway/bridge), the hero was out of frame at the start, the tent looked like a white block, and the trees were lime. Shots for the fire, idea, fort, pour and break-in were reworked after its notes.
+Still open: brick colour shifts between shots (sun/bloom), "Congratulations" beats could be lower with more cheering, ripple rings on splashes, the teeth could drop visibly with an arrow hitting stone, and better tree models.
+
+## Tech reviewer: FIX (p90 only)
+Applied: the tower clearance is now 14 and the cong2 shot was reframed.
+Metrics now: speed max 74.8, p90 28.3 (target 25, round 1 was 48.4), still 66%, 11 fast moves, -10.0 LUFS. All cues are within 0.3 s.
