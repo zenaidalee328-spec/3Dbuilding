@@ -42,6 +42,7 @@ Full notes: `docs/analysis/reference-shorts-frame-notes.md`. The videos themselv
   ripple rings, gold light sweep on success, grade changes with mood (storm, underground).
 
 ### Camera rules (measured with optical flow on every frame of the Bridge short)
+- BUILD BEATS (owner, 2026-11-23): when the words say something is built ("you build a wall"), show it being built from start to finish, the whole thing in frame from the ground to its top (with sky above it only once it is finished), the camera holding still on it while it rises. Start the build on the verb ("replace", "build"), give it ~2 s, never start the camera's next move before it is finished. Never frame where the thing will be (empty sky) before it exists.
 - Bridge: median 1.5 px/frame, p90 16, max 78; 42% of frames still, 34% slow; only 11 fast moves in 67 s, each 1.2-2.7 s
   with 0.5-1.5 s ease in/out; 0-1 hard cuts. Our Roman Aqueduct was 15-25x faster (peaks 2000 px/f) = "too sharp".
 - ROOT CAUSE: their whole story happens in ONE place (~100 m); each new step is built where the camera already is.

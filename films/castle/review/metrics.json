@@ -6,11 +6,11 @@
  "end_hold_s": 0.32,
  "pauses_over_0.25s": [],
  "camera": {
-  "speed_median": 1.2,
-  "speed_p90": 28.3,
-  "speed_max": 74.8,
-  "accel_p99": 4.84,
-  "still_or_slow_pct": 66,
+  "speed_median": 1.5,
+  "speed_p90": 29.5,
+  "speed_max": 98.8,
+  "accel_p99": 6.01,
+  "still_or_slow_pct": 64,
   "fast_moves": 11,
   "moves_start_length_peak": [
    [
@@ -19,19 +19,19 @@
     27.6
    ],
    [
-    6.9,
+    6.4,
     1.43,
     49.6
    ],
    [
-    9.37,
+    8.33,
     1.37,
-    62.7
+    79.6
    ],
    [
-    11.87,
-    2.4,
-    74.8
+    13.5,
+    1.7,
+    98.8
    ],
    [
     18.57,
@@ -56,7 +56,7 @@
    [
     42.6,
     1.8,
-    41.6
+    34.6
    ],
    [
     45.73,
@@ -69,7 +69,7 @@
     23.2
    ]
   ],
-  "camera_above_target_m_median": -0.4
+  "camera_above_target_m_median": 0.0
  },
  "loudness_LUFS": -10.0,
  "checks": [
@@ -78,10 +78,10 @@
   "PASS  words_per_s: 3.8  (reference 3.7-4.3)",
   "PASS  first_word_s: 0.22 s  (reference 0-0.3 s)",
   "PASS  end_hold_s: 0.32 s  (reference 0.1-0.7 s)",
-  "PASS  speed_max: 74.8 px/f  (reference 0-90 px/f)",
-  "FAIL  speed_p90: 28.3 px/f  (reference 0-25 px/f)",
-  "PASS  accel_p99: 4.84  (reference 0-9)",
-  "PASS  still_or_slow_pct: 66 %  (reference 65-100 %)",
+  "FAIL  speed_max: 98.8 px/f  (reference 0-90 px/f)",
+  "FAIL  speed_p90: 29.5 px/f  (reference 0-25 px/f)",
+  "PASS  accel_p99: 6.01  (reference 0-9)",
+  "FAIL  still_or_slow_pct: 64 %  (reference 65-100 %)",
   "PASS  fast_moves: 11  (reference 6-14)",
   "PASS  loudness_LUFS: -10.0  (reference -11--6)"
  ]

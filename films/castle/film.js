@@ -254,8 +254,8 @@
   t => t < T.fence + 0.3 ? [['run', t * 1.3, 1]] : t < T.fire - 0.3 ? [['push', t, 1]] : t < T.genius - 0.5 ? [['scared', t, 1]] : [['think', t - T.genius + 0.5, 1]], HERO);
   // 3) the fort: you cheer on the wall, friends too (only once the wall is up: nobody floats)
   const WUP = T.wall + 0.4;
-  add(WUP, T.ladders, on(0, WY, HW - 0.6, 180), t => [['cheer', t - T.cong1, 1]], HERO);
-  [[-3.5, 1], [3.2, 2]].forEach(([x, j]) => add(WUP, T.top + 0.3, on(x, WY, HW - 0.6, 180), t => [['cheer', t - T.cong1 + j * 0.6, 1]], ally(j)));
+  add(WUP, T.ladders, on(-5, WY, HW - 0.6, 180), t => [['cheer', t - T.cong1, 1]], HERO);
+  [[-8, 1], [-2.8, 2]].forEach(([x, j]) => add(WUP, T.top + 0.3, on(x, WY, HW - 0.6, 180), t => [['cheer', t - T.cong1 + j * 0.6, 1]], ally(j)));
   // 4) ladders: three climbers
   [-7, -1.2, 6].forEach((x, i) => add(T.ladders - 0.2, T.dig + 0.2, t => { const u = k(t, T.ladders + 0.2 + i * 0.25, T.top + 0.4); return [x, TOPY + u * 6.2, HW + 2.0 - u * 0.9, 180]; },
     loop('climb', i * 0.5, 1.1), FOE));
@@ -329,9 +329,10 @@
   const SHOTS = [
     [0.0, [3.6, Y + 1.8, -3.5], [1.2, Y + 0.3, 8], 46],                  // asleep by the fire; torches on the slope behind
     [T.fence + 0.4, [7, Y + 2, 4], [3, Y + 2.6, HW], 44],                // you build the fence; torches + fire arrows fly over it
-    [T.genius - 0.1, [5.6, Y + 1.6, 3.6], [3, Y + 1.5, 6.5], 42],        // your idea (chest height, ~3.5 m, burnt fence behind)
-    [T.stone + 0.3, [4, Y + 1.2, 2.5], [0, WY + 0.4, HW - 0.6], 50],     // the wall rises -> CONGRATULATIONS (low in the yard, up)
-    [T.ladders + 0.2, [-12, Y + 1.8, 24], [-2, Y + 3, HW + 3], 44],      // ladders, then diggers + water in the same frame
+    [T.genius - 0.6, [5.6, Y + 1.6, 3.6], [3, Y + 1.5, 6.5], 42],        // your idea (chest height, ~3.5 m, burnt fence behind)
+    [T.wood, [-3, Y + 4, -6], [-7, Y + 3.5, HW], 50],                // the whole wall in frame, ground to teeth: it rises course by course -> CONGRATULATIONS
+    [T.cong1 + 1.5, [-6, Y + 15, 1], [-6, Y + 5, HW + 16], 46],          // crane up behind the cheering people: over the wall to the slope outside
+    [T.ladders + 1.0, [-12, Y + 1.8, 24], [-2, Y + 3, HW + 3], 44],      // "you just built a fort": crane up over the new wall, down outside to the ladders
     [T.short - 0.4, [-11, Y + 1.4, 26], [-6, Y + 1.5, 16.5], 42],         // the ladder stops short of the wall, slides in
     [T.archers - 0.1, [5.4, hAt(5.4, 37.2) + 1.9, 37.2], [1, WY - 0.5, HW + 1], 44], // over an archer's shoulder
     [T.teeth - 0.1, [5, WY + 2.2, 21], [1, WY + 0.6, HW + 0.5], 42],     // stone teeth along the top
@@ -348,7 +349,7 @@
   ].map(([t, p, q, f]) => ({ t, p: V(...p), q: V(...q), f }));
   const ease = x => 0.5 - 0.5 * Math.cos(Math.PI * clamp(x));
   // what stands where at time t (the camera must stay out of it)
-  const wuAt = t => k(t, T.stone - 0.25, T.wall + 0.35), goneAt = t => sm(k(t, T.wood, T.wood + 0.6)), kuAt = t => eout(k(t, T.tower - 0.5, T.tower + 0.5));
+  const WALL0 = c('wall', 'replace'), wuAt = t => k(t, WALL0, T.wall + 0.35), goneAt = t => sm(k(t, T.wood, T.wood + 0.6)), kuAt = t => eout(k(t, T.tower - 0.5, T.tower + 0.5));
   function clearance(p, t) {
     const fenceH = t > T.fence0 ? 4.9 * (1 - goneAt(t)) : 0, wallH = wuAt(t) > 0 ? WH * clamp(wuAt(t) * 1.4) + (t > T.teeth ? 1.2 : 0) : 0, h = Math.max(fenceH, wallH);
     const ax = Math.abs(p.x), az = Math.abs(p.z);
@@ -368,6 +369,7 @@
     if (t < ts) { clearance(A.p, t); return A; }
     const u = ease(k(t, ts, b.t)), Bv = push(b, 0);
     const mid = A.p.clone().lerp(Bv.p, 0.5); mid.y += Math.min(6, dist * 0.12);      // a gentle arc, never through the ground
+    const inside = P => Math.max(Math.abs(P.x), Math.abs(P.z)) < HW; if (inside(A.p) !== inside(Bv.p) && wuAt(t) > 0) mid.y = Math.max(mid.y, TOPY + WH + 7);   // in <-> out: crane well over the wall
     const p = A.p.clone().multiplyScalar((1 - u) * (1 - u)).add(mid.multiplyScalar(2 * u * (1 - u))).add(Bv.p.clone().multiplyScalar(u * u));
     return { p: clearance(p, t), q: A.q.clone().lerp(Bv.q, u), f: lerp(A.f, Bv.f, u) };
   }
@@ -407,8 +409,8 @@
         const p = a.lerp(b, u); p.y += Math.sin(u * Math.PI) * 2; flame(p, 0.45, 1); puff(p.clone().add(V(0, 0, 0.6)), 0xffb060, 0.3, 0.5); } }  // fire arrows
     if (gone > 0 && gone < 1) for (let i = 0; i < 6; i++) dust(t, T.wood + i * 0.08, V((i - 3) * 6, TOPY + 0.5, HW), 5, 3, 0x2a2420, 1.0, 3);
     // stone wall: rises in courses (a step every 1 m)
-    const wu = k(t, T.stone - 0.25, T.wall + 0.35), course = Math.floor(wu * WH + 0.0001) + sm(((wu * WH) % 1) * 3) * 0;
-    walls.forEach((m, i) => { const h = Math.max(0.01, Math.min(WH, Math.floor(wu * WH * 1.4 - i * 0.6) + 1)) * (wu > 0 ? 1 : 0); m.scale.y = Math.max(0.001, h / WH); m.visible = wu > 0; });
+    const wu = wuAt(t), course = Math.floor(wu * WH + 0.0001) + sm(((wu * WH) % 1) * 3) * 0;
+    walls.forEach((m, i) => { const h = Math.max(0.01, Math.min(WH, (Math.floor(wu * WH * 2) + 1) * 0.5)); /* all sides together, one 0.5 m course at a time */ m.scale.y = Math.max(0.001, h / WH); m.visible = wu > 0; });
     lintel.visible = wu >= 1; if (wu > 0 && wu < 1) for (let i = 0; i < 4; i++) dust(t, T.stone + i * 0.25, V(-HW + i * 8, TOPY + 0.3, HW + 1.5), 5, 3, 0xe0d0b8, 0.9, 3);
     // the corner sags when they dig under it, the towers fix it
     const sag = sm(k(t, T.under - 0.1, T.under + 0.6)) * (1 - sm(k(t, T.towers - 0.2, T.towers + 0.3)));

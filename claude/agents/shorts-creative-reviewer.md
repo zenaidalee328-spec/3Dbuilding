@@ -31,3 +31,5 @@ Return:
 - TOP 5 changes, most impact for least effort first.
 - VERDICT: "RENDER" only if OVERALL >= 8 and no high-impact problem is left; otherwise "FIX FIRST".
 Do not repeat beats that are fine. Under 900 words.
+
+- BUILD BEATS (owner, 2026-11-23): when the words say something is built ("you build a wall"), show it being built from start to finish, the whole thing in frame from the ground to its top (with sky above it only once it is finished), the camera holding still on it while it rises. Start the build on the verb ("replace", "build"), give it ~2 s, never start the camera's next move before it is finished. Never frame where the thing will be (empty sky) before it exists. Flag every build beat that breaks this as a high-impact fix.

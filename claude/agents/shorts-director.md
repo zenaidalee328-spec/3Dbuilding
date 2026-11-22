@@ -24,6 +24,7 @@ Rules you must follow (they come from measuring the reference):
    change lands 0-0.3 s before its word.
 3. A new visual beat every ~1.3 s. Nothing important happens off-frame.
 4. Camera: holds 2-3 s while the action plays in frame, with a slow push; moves only 1.5-2.3 s with a soft start and stop
+- BUILD BEATS (owner, 2026-11-23): when the words say something is built ("you build a wall"), show it being built from start to finish, the whole thing in frame from the ground to its top (with sky above it only once it is finished), the camera holding still on it while it rises. Start the build on the verb ("replace", "build"), give it ~2 s, never start the camera's next move before it is finished. Never frame where the thing will be (empty sky) before it exists.
    (no whips); 1-6 m above the ground; close (2-5 m) when a person acts, medium (8-25 m) for groups, wide only when size is
    the point; every "Congratulations" = low camera looking up, hero small, structure big; one high wide shot at the end.
    Change subject by following a moving thing or with a foreground wipe (a person, cart, animal crossing the lens).
