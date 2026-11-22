@@ -162,7 +162,7 @@
   function update(t) {
     const hx = bx0 - 3.2 + t * 1.25;
     if (hero) { hero.position.set(hx, deckY, BZ + 0.1); hero.rotation.y = Math.PI / 2; act.time = (t * 1.0) % act.getClip().duration; mixer.update(0); }
-    const P = V(bx0 + 0.6 + t * 0.1, 2.2, 6.4), T = V(bx0 - 2.2 + t * 0.1, 0.0, -14);
+    const P = V(bx0 + 0.2 + t * 0.1, 2.3, 9.6), T = V(bx0 - 1.6 + t * 0.1, -1.2, -14);
     cam.position.copy(P); cam.lookAt(T); cam.fov = 44; cam.near = 0.1; cam.far = 2000; cam.updateProjectionMatrix();
     sun.target.position.set(bx0, 0, -8); sun.position.copy(sun.target.position).add(SUN.clone().multiplyScalar(120));
     Object.assign(B.POST, { focus: P.distanceTo(V(hx, 1, BZ)), aperture: 0.16, maxBlur: 9, bloom: 0.18, thr: 1.3, sat: 1.14, con: 1.14, exp: 0.95, ao: 1.2, aoR: 0.7, mb: [0, 0] });
