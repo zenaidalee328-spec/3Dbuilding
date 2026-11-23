@@ -45,7 +45,8 @@ Check every one of these BEFORE showing the owner a film:
 7. **"Congratulations" at most once, at the very end** (Windmill had 4, then 2; the owner wanted 1).
 8. **No stock asides** ("Being an absolute genius", "Using your huge brain", "Being smart").
 9. **Owner's own script: check the length first** (~3.4 words/s at our speed). Over 70 s: trim it to 55-70 s, keeping his facts and order.
-10. **Background wind quiet:** bed about -38 dB, gusts -15 to -22 dB, so the voice is clear.
+10. **Sound quiet under the voice:** wind bed about -38 dB, gusts -15 to -22 dB, every other effect about -22 to -30 dB
+   (owner, Greenhouse: "sound effects itne loud ku"). The voice must always lead.
 11. **Animals move at a real pace,** facing the way they walk, never sliding or teleporting.
 12. **Before saying "done", look at a contact sheet of stills** (one per beat) and ask: would a viewer understand this frame without the words?
 

@@ -1,6 +1,8 @@
 // Sound for make-audio.js: [file in sfx/, time (s, 1x), gain dB, (length s)]. Quiet wind bed, a sound on every build.
 module.exports = (TL, c) => {
   const L = id => TL.line(id).t0;
+  // owner: effects were too loud. Every effect sits 10 dB lower (the quiet wind bed stays at -38), so the voice leads.
+  const QUIET = 10;
   return [
     ['wind', 0, -38, TL.DUR * 1.1], ['birds', 0, -22, 2],
     ['shower', c('hook', 'hail') - 0.3, -16, 4.5], ...[0, 1, 2, 3].map(i => ['click', c('hook', 'hail') + 0.4 + i * 0.6, -20]),
@@ -21,5 +23,5 @@ module.exports = (TL, c) => {
     ['click', c('vib', 'vibrator'), -16], ['click', c('vib', 'cluster'), -18], ['thud', c('hive', 'boxes'), -14], ['thud', c('hive', 'boxes') + 0.35, -14], ['birds', c('hive', 'pollinate'), -22, 2],
     ['shower', c('add', 'gutters') - 0.4, -20, 3.5], ['metal_clank', c('add', 'gutters'), -14], ['click', c('add', 'sensors'), -14], ['soft_whoosh', c('add', 'hat') - 0.5, -16], ['pop', c('add', 'hat') + 0.2, -16],
     ['birds', L('end'), -16, 3],
-  ];
+  ].map((e, i) => i === 0 ? e : [e[0], e[1], e[2] - QUIET, ...e.slice(3)]);
 };
