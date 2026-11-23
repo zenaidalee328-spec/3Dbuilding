@@ -116,17 +116,57 @@
 
   // ---------- the plants (instanced): one bush per spot, recoloured / squashed by each problem, healed by each fix
   const PL = []; ROWS.forEach((x, r) => { for (let z = -8.4; z <= 8.41; z += 0.7) PL.push({ x: x + (hash(PL.length * 3.1) - 0.5) * 0.08, z, r, tom: x > 0, i: PL.length }); });
-  const bushG = (() => { const gq = new THREE.IcosahedronGeometry(0.5, 4), p = gq.attributes.position, v = V(0, 0, 0);
-    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i); v.multiplyScalar(1 + 0.3 * (B.fbm(v.x * 1.3 + 3, v.y * 1.3 + v.z * 0.9, 4, 3) - 0.5) * 2 + 0.12 * (hash(i * 1.7) - 0.5)); p.setXYZ(i, v.x, v.y, v.z); }
-    gq.translate(0, 0.42, 0); gq.computeVertexNormals(); return gq; })();
+  // real-looking plants: leaf cards (a drawn leaf with see-through edges) on a stem. Tomato: a tall stem with compound leaves
+  // spiralling up it; strawberry: a low rosette of three-part leaves on stalks. The texture is grey; each plant's colour tints it.
+  const ATL = (() => { const cv = document.createElement('canvas'); cv.width = 512; cv.height = 256; const x = cv.getContext('2d'); x.clearRect(0, 0, 512, 256);
+    const leaflet = (cx, cy, len, wid, ang, lum) => { x.save(); x.translate(cx, cy); x.rotate(ang); x.beginPath(); const N = 22;
+      for (let i = 0; i <= N; i++) { const u = i / N, a = u * Math.PI, r = wid * Math.sin(a) * (1 - 0.25 * u) * (1 + 0.08 * (i % 2)); x.lineTo(r, -len * u); }
+      for (let i = N; i >= 0; i--) { const u = i / N, a = u * Math.PI, r = wid * Math.sin(a) * (1 - 0.25 * u) * (1 + 0.08 * (i % 2)); x.lineTo(-r, -len * u); }
+      x.closePath(); const gr = x.createLinearGradient(-wid, 0, wid, 0); gr.addColorStop(0, `rgb(${lum - 40},${lum - 40},${lum - 40})`); gr.addColorStop(0.5, `rgb(${lum},${lum},${lum})`); gr.addColorStop(1, `rgb(${lum - 30},${lum - 30},${lum - 30})`);
+      x.fillStyle = gr; x.fill(); x.strokeStyle = 'rgba(120,120,120,0.9)'; x.lineWidth = 1.6; x.beginPath(); x.moveTo(0, 0); x.lineTo(0, -len * 0.92); x.stroke();
+      x.lineWidth = 0.9; for (let i = 1; i < 6; i++) { const u = i / 6; [-1, 1].forEach(sg => { x.beginPath(); x.moveTo(0, -len * u); x.lineTo(sg * wid * 0.7 * Math.sin(u * Math.PI), -len * (u + 0.1)); x.stroke(); }); }
+      x.restore(); };
+    // tomato compound leaf in [0,256): rachis bottom-centre to top, 3 pairs of leaflets + a tip
+    x.strokeStyle = '#9a9a9a'; x.lineWidth = 5; x.beginPath(); x.moveTo(128, 254); x.lineTo(128, 30); x.stroke();
+    [[206, 84, 46], [146, 76, 42], [90, 64, 36]].forEach(([y, l, w], i) => { leaflet(126, y, l, w, -1.05 - i * 0.1, 225 - i * 6); leaflet(130, y, l, w, 1.05 + i * 0.1, 220 - i * 6); });
+    leaflet(128, 50, 62, 36, 0, 230);
+    // strawberry three-part leaf in [256,384)
+    [[0, 232], [-0.9, 220], [0.9, 218]].forEach(([a, l]) => leaflet(320, 240, 118, 60, a, l));
+    // stem strip in [384,512)
+    x.fillStyle = '#b4b4a4'; x.fillRect(388, 0, 120, 256);
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; })();
+  const UV = { tom: [0, 0.5], str: [0.5, 0.75], stem: [0.76, 0.99] };
+  function plantGeo(tom) {
+    const P = [], U = [], I = [];
+    const quad = (pts, uv) => { const o = P.length / 3; pts.forEach(p => P.push(p.x, p.y, p.z)); U.push(...uv); I.push(o, o + 1, o + 2, o + 1, o + 3, o + 2); };
+    // a bending card: from base along dir, width side, n segments, each turning down by droop
+    const card = (base, dir, side, len, wid, [u0, u1], droop, n = 3) => { let a = base.clone(), d = dir.clone().normalize(); const axis = side.clone().normalize();
+      for (let i = 0; i < n; i++) { const b = a.clone().addScaledVector(d, len / n), v0 = i / n, v1 = (i + 1) / n;
+        quad([a.clone().addScaledVector(axis, -wid / 2), a.clone().addScaledVector(axis, wid / 2), b.clone().addScaledVector(axis, -wid / 2), b.clone().addScaledVector(axis, wid / 2)], [u0, v0, u1, v0, u0, v1, u1, v1]);
+        d.applyAxisAngle(axis, droop); a = b; } };
+    if (tom) {
+      const H = 1.3; [0, Math.PI / 2].forEach(r => card(V(0, 0, 0), V(0, 1, 0), V(Math.cos(r), 0, Math.sin(r)), H, 0.035, UV.stem, 0, 1));
+      for (let i = 0; i < 22; i++) { const h = 0.08 + i * 0.054, a = i * 2.4, out = V(Math.cos(a), 0, Math.sin(a)), dir = out.clone().multiplyScalar(0.9).add(V(0, 0.55 - i * 0.02, 0));
+        const side = V(-Math.sin(a), 0, Math.cos(a)), len = 0.58 - i * 0.012;
+        card(V(0, h, 0), dir, side, len, len * 0.75, UV.tom, -0.3, 3); }
+      for (let i = 0; i < 4; i++) { const a = i * 1.57 + 0.4; card(V(0, H - 0.05, 0), V(Math.cos(a) * 0.4, 1, Math.sin(a) * 0.4), V(-Math.sin(a), 0, Math.cos(a)), 0.2, 0.13, UV.tom, -0.2, 2); }
+    } else {
+      for (let i = 0; i < 14; i++) { const a = i * 2.4 + hash(i) * 0.3, out = V(Math.cos(a), 0, Math.sin(a)), side = V(-Math.sin(a), 0, Math.cos(a)), r = 0.07 + 0.05 * (i % 3), h = 0.1 + 0.05 * (i % 3);
+        card(V(0, 0, 0), out.clone().multiplyScalar(r).add(V(0, h, 0)), side, Math.hypot(r, h), 0.02, UV.stem, 0, 1);
+        card(V(out.x * r, h, out.z * r), out.clone().add(V(0, 0.35, 0)), side, 0.19, 0.2, UV.str, -0.45, 2); }
+    }
+    const gq = new THREE.BufferGeometry(); gq.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); gq.setAttribute('uv', new THREE.Float32BufferAttribute(U, 2)); gq.setIndex(I); gq.computeVertexNormals(); return gq;
+  }
+  const LEAFM = new THREE.MeshStandardMaterial({ color: 0xffffff, map: ATL, alphaTest: 0.45, side: THREE.DoubleSide, roughness: 0.65, envMapIntensity: 0.5 });
+  const PT = PL.filter(p => p.tom), PS = PL.filter(p => !p.tom); PT.forEach((p, j) => p.k = j); PS.forEach((p, j) => p.k = j);
+  const tomI = new THREE.InstancedMesh(plantGeo(true), LEAFM, PT.length), strI = new THREE.InstancedMesh(plantGeo(false), LEAFM, PS.length);
+  [tomI, strI].forEach(m => { m.castShadow = m.receiveShadow = true; m.frustumCulled = false; scene.add(m); });
   const LT = B.procTex(256, (u, v) => { const n = B.fbm(u, v, 24, 4), l = 150 + 105 * n; return [l, l, l, n]; }, 2.0, [1, 1]);
-  const plants = new THREE.InstancedMesh(bushG, new THREE.MeshStandardMaterial({ color: 0xffffff, map: LT.map, normalMap: LT.normalMap, roughness: 0.8, envMapIntensity: 0.5 }), PL.length);
-  plants.castShadow = plants.receiveShadow = true; plants.frustumCulled = false; scene.add(plants);
   const stakesT = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.018, 0.018, 1.5, 6), new THREE.MeshStandardMaterial({ color: 0xc8b07a, roughness: 0.8 }), PL.length);
-  { const M = new THREE.Matrix4(); let n = 0; PL.forEach(p => { if (!p.tom) return; M.makeTranslation(p.x + 0.12, 0.75 + 0.2, p.z); stakesT.setMatrixAt(n++, M); }); stakesT.count = n; stakesT.castShadow = true; scene.add(stakesT); }
+  { const M = new THREE.Matrix4(); let n = 0; PL.forEach(p => { if (!p.tom) return; M.makeTranslation(p.x + 0.06, 0.75 + 0.2, p.z + 0.03); stakesT.setMatrixAt(n++, M); }); stakesT.count = n; stakesT.castShadow = true; scene.add(stakesT); }
   // flowers (yellow on tomatoes, white on strawberries) and fruit (red), 4 per plant
-  const FLW = []; PL.forEach(p => { for (let j = 0; j < 4; j++) { const a = hash(p.i * 7 + j) * 6.283, h = p.tom ? 0.6 + 0.6 * hash(p.i + j * 3) : 0.38 + 0.12 * hash(p.i + j);
-    const r = p.tom ? 0.32 : 0.3; FLW.push({ p, x: p.x + Math.cos(a) * r, y: h, z: p.z + Math.sin(a) * r * 0.8, j }); } });
+  const FLW = []; PL.forEach(p => { for (let j = 0; j < 4; j++) { const a = hash(p.i * 7 + j) * 6.283, h = p.tom ? 0.5 + 0.65 * hash(p.i + j * 3) : 0.3 + 0.1 * hash(p.i + j);
+    const r = p.tom ? 0.15 : 0.22; FLW.push({ p, x: p.x + Math.cos(a) * r, y: h, z: p.z + Math.sin(a) * r * 0.8, j }); } });
   const flowers = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(0.035, 1), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, emissive: 0x222200 }), FLW.length);
   const fruit = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(0.1, 2), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35, envMapIntensity: 0.8 }), FLW.length);
   flowers.frustumCulled = fruit.frustumCulled = false; fruit.castShadow = true; scene.add(flowers, fruit);
@@ -336,7 +376,7 @@
     [T.hate - 0.3, T.cool + 0.8, 0x8a7a2a, 0.7, 0.95, p => p.z < -3.4],                 // the heat-haters (back room)
     [T.bdie - 0.9, T.polli, 0x8a8a3a, 0.6, 0.9, p => !p.tom],                            // strawberries without bees
   ].map(([a, b, col, sy, fr, sel]) => ({ a, b, col: new THREE.Color(col), sy, fr, sel }));
-  const GREEN = new THREE.Color(0x4a8a34), CC = new THREE.Color();
+  const GREEN = new THREE.Color(0x5c9a3c), CC = new THREE.Color();
   // fixes visible from these times on
   const SHOW = { arches: T.arches - 0.2 };
 
@@ -578,10 +618,10 @@
     PL.forEach((p, i) => { CC.copy(GREEN).offsetHSL(0.02 * (hash(i * 5) - 0.5), 0, 0.06 * (hash(i * 9) - 0.5)); let sy = 1, s = 1;
       EV.forEach(e => { if (t < e.a - 0.1 || t > e.b + 1.6 || !e.sel(p) || hash(i * 13 + e.a) > e.fr) return; const d = sm(k(t, e.a, e.a + 1.3)) * (1 - sm(k(t, e.b, e.b + 1.4)));
         if (d <= 0) return; CC.lerp(e.col, d); sy *= lerp(1, e.sy, d); s *= lerp(1, 0.92, d); });
-      const base = p.tom ? V(0.72, 1.4, 0.72) : V(0.72, 0.5, 0.72), lean = (1 - sy) * 0.5;
+      const base = p.tom ? V(1, 1, 1) : V(1.6, 1.6, 1.6), lean = (1 - sy) * 0.5, MI = p.tom ? tomI : strI;
       E0.set(lean * Math.sin(i * 2.1), hash(i) * 6.28, lean * Math.cos(i * 2.1) + Math.sin(t * 2.3 + p.z) * 0.02 * (1 + 4 * stormA)); Q0.setFromEuler(E0);
-      M4.compose(V(p.x, 0.2, p.z), Q0, base.multiplyScalar(grow * s).multiply(V(1, sy, 1))); plants.setMatrixAt(i, M4); plants.setColorAt(i, CC); });
-    plants.instanceMatrix.needsUpdate = true; plants.instanceColor.needsUpdate = true;
+      M4.compose(V(p.x, 0.2, p.z), Q0, base.multiplyScalar(grow * s).multiply(V(1, sy, 1))); MI.setMatrixAt(p.k, M4); MI.setColorAt(p.k, CC); });
+    [tomI, strI].forEach(m => { m.instanceMatrix.needsUpdate = true; m.instanceColor.needsUpdate = true; });
     // flowers: tomatoes from the pollen beat (yellow), strawberries from the bee beat (white); fruit: tomatoes after the trolley passes, strawberries after the bees
     const tomFl = sm(k(t, T.pollen0 - 0.5, T.pollen0 + 0.5)), strFl = sm(k(t, T.bees0 - 0.6, T.bees0 + 0.3));
     FLW.forEach((f, i) => { const tom = f.p.tom; let fl = tom ? tomFl : strFl, fr = 0;

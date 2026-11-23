@@ -48,6 +48,8 @@ Check every one of these BEFORE showing the owner a film:
 10. **Sound quiet under the voice:** wind bed about -38 dB, gusts -15 to -22 dB, every other effect about -22 to -30 dB
    (owner, Greenhouse: "sound effects itne loud ku"). The voice must always lead.
 11. **Animals move at a real pace,** facing the way they walk, never sliding or teleporting.
+13. **Plants look like plants:** a stem with leaf cards (a drawn leaf with see-through edges), never round blobs (owner, Greenhouse:
+   "plants aise hoty hain?"). Tomatoes tall on stakes, low rosettes for strawberries/lettuce.
 12. **Before saying "done", look at a contact sheet of stills** (one per beat) and ask: would a viewer understand this frame without the words?
 
 ## The reference study (4 AlexDiary shorts, analysed frame by frame at 30 fps)
