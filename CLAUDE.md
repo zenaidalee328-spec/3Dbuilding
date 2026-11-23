@@ -12,7 +12,8 @@ Reply to the user in Roman Urdu.
 
 ## Style the user wants (learned from feedback)
 - Realistic as 3D allows: Poly Haven PBR textures + HDRI lighting (`B.loadHDR`, `B.pbr`), real models, depth of field.
-- Characters: realistic Mixamo (Remy), never cartoon characters. Motions must match the story (no ducking/"dodging bullets").
+- NO human characters for now (owner, 2026-11-23: their motions look odd). Tell the story with the machines, props, FX and camera; animals (e.g. the CC0 donkey) are OK.
+- (If people ever come back) Characters: realistic Mixamo (Remy), never cartoon characters. Motions must match the story (no ducking/"dodging bullets").
   Character height is normalised to 1.78 m with Box3; legs can be borrowed from a calm clip so they stay in the ground.
 - No big text over the picture (no MOVIES / REAL LIFE / choice cards / big tags). Subtitles are enough.
   Small corner badges (temperature, "SUNK TO") are OK; thermometers only as small badges.

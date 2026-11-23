@@ -220,8 +220,9 @@
   // ---------- people (Mixamo): hero (Remy, red shirt), the miller, a small crowd; the donkey (Quaternius, CC0)
   const CLIP = { walk: 'Walking', dig: 'Digging', push: 'Pushing', cheer: 'Cheering', idle: 'Breathing Idle', sleep: 'Sleeping Idle', look: 'Nervously Look Around', flail: 'Flailing Arms', run: 'Running', pull: 'Pull Heavy Object' };
   const clips = {}, bodies = {};
-  Object.values(CLIP).forEach(f => B.fbx('mixamo/' + f + '.fbx', obj => { if (obj.animations && obj.animations[0]) clips[f] = obj.animations[0]; if (f === 'Walking') bodies.remy = obj; }));
-  B.fbx('mixamo/char_peasant_man.fbx', o => { bodies.man = o; }); B.fbx('mixamo/char_peasant_girl.fbx', o => { bodies.girl = o; });
+  const NO_PEOPLE = true;   // owner 2026-11-23: no human characters
+  if (!NO_PEOPLE) Object.values(CLIP).forEach(f => B.fbx('mixamo/' + f + '.fbx', obj => { if (obj.animations && obj.animations[0]) clips[f] = obj.animations[0]; if (f === 'Walking') bodies.remy = obj; }));
+  if (!NO_PEOPLE) { B.fbx('mixamo/char_peasant_man.fbx', o => { bodies.man = o; }); B.fbx('mixamo/char_peasant_girl.fbx', o => { bodies.girl = o; }); }
   const TOP = /top|shirt|torso|jacket|hood|sweat/i, BOT = /bottom|pant|jean|trouser|short/i;
   const people = {};
   function makePerson(key, body, h, look) {
@@ -293,7 +294,7 @@
     [T.huge - 0.1, [5.8, 2.6, 8.0], [0.2, 0.9, 0.4], 48],                  // the donkey mill: stones, beam, the circle
     [T.cong1, [2.8, 0.6, 5.8], [-0.2, 1.2, 1.2], 50],                       // CONGRATULATIONS (low)
     [T.hungry + 0.3, [1.6, 2.7, 15.5], [0.6, 3.8, 0], 52],               // WIDE: the donkey eats in front; the post drops in, sails, wind, the wind changes
-    [T.genius - 0.3, [4.0, 1.6, 6.2], [1.9, 1.3, 2.8], 44],            // genius (hero close)
+    [T.genius - 0.3, [3.5, 2.0, 7.5], [0, 6.4, 0], 50],                 // genius: up at the stopped sails
     [T.whole - 0.1, [1.6, 2.9, 15.5], [0, 4.6, 0], 52],                // WIDE: the house drops on, pushed round
     [T.cong2, [1.5, 0.9, 12.5], [0.4, 5.5, 0], 54],                       // CONGRATULATIONS (low)
     [T.storm - 0.1, [-7.5, 2.6, 11.5], [0, 4.6, 0], 50],               // the storm, flour bursts
@@ -302,7 +303,7 @@
     [T.build - 0.1, [1.8, 3.4, 18.5], [0, 5.6, 0], 52],                // WIDE: the tower rises, the cap lands and turns
     [T.cong3, [1.6, 0.8, 14], [0, 6.5, 0], 56],                       // CONGRATULATIONS (low)
     [T.night - 0.1, [-8.5, 3.4, 15], [0, 7.5, 0], 50],                 // night, the wind from behind
-    [T.brain - 0.4, [5.0, 1.7, 10.2], [2.3, 1.4, 4.6], 44],             // huge brain (hero close)
+    [T.brain - 0.4, [5.5, 2.5, 11], [0, 9.6, 0], 48],             // huge brain (hero close)
     [T.windmill, [13, 12.2, -9.5], [0, 10.4, -2.6], 40],                // high behind the cap: the fantail, it turns the cap
     [T.final, [1.8, 3.2, 19], [0, 5.6, 0], 50],                      // CONGRATULATIONS: the windmill
     [T.edmund, [15, 10, 30], [0, 6, 0], 46],                           // rising on the mill in its wheat
@@ -395,13 +396,13 @@
     if (t > T.build - 0.3 && t < T.build + 0.6) dust(t, T.build - 0.2, V(0, 1, 0), 14, 4, 0xd8c8a8, 1.0, 2.5);
 
     // people + donkey
-    if (people.hero) {
+    {
       Object.values(people).forEach(P => { if (P) P.holder.visible = false; }); if (donkey) donkey.visible = false;
       const H = people.hero;
       if (t < T.huge - 0.3) { pose(H, 0, 0, -0.75, 0, 'dig', t * 1.2);                                  // rubbing / spinning, bent over the stones
         const ga = sm(k(t, T.gorilla - 0.1, T.gorilla + 0.25)) * (1 - sm(k(t, T.gorilla + 1.0, T.gorilla + 1.4)));
-        ['LeftArm', 'RightArm', 'LeftForeArm', 'RightForeArm'].forEach(b => { if (H.bones[b]) H.bones[b].scale.setScalar(1 + 0.75 * ga); }); }
-      else { ['LeftArm', 'RightArm', 'LeftForeArm', 'RightForeArm'].forEach(b => { if (H.bones[b]) H.bones[b].scale.setScalar(1); });
+        ['LeftArm', 'RightArm', 'LeftForeArm', 'RightForeArm'].forEach(b => { if (H && H.bones[b]) H.bones[b].scale.setScalar(1 + 0.75 * ga); }); }
+      else { ['LeftArm', 'RightArm', 'LeftForeArm', 'RightForeArm'].forEach(b => { if (H && H.bones[b]) H.bones[b].scale.setScalar(1); });
         if (t < T.cong1 - 0.1) pose(H, -2.4, 0, 2.2, 150, 'idle', t);
         else if (t < T.post0) pose(H, 1.3, 0, 2.6, 25, 'cheer', t - T.cong1);
         else if (t < T.changes) pose(H, 2.2, 0, 3.0, 200, 'idle', t);
@@ -447,7 +448,7 @@
     g.beginPath(); for (let i = 0; i < 8; i++) { const r = i % 2 ? 12 : 46, an = i * Math.PI / 4; g.lineTo(Math.cos(an) * r, Math.sin(an) * r); } g.closePath(); g.fill(); g.restore(); }
   function overlay(t) {
     B.vignette(0.12);
-    sparkle(t, T.genius - 0.1, V(2.2, 2.05, 3.0)); sparkle(t, T.brain - 0.1, V(2.6, 2.05, 4.7));
+    sparkle(t, T.genius - 0.1, V(0.9, 8.9, 0.6)); sparkle(t, T.brain - 0.1, V(1.4, 12.6, 0.4));
     const night = sm(k(t, T.night - 0.6, T.night + 0.2)) * (1 - sm(k(t, T.final - 0.3, T.final + 0.5))); B.tint(night * 0.35, '#1a2a6a', 'multiply');
     B.flash(t, [T.post, T.house], '#fff6e6', 0.12, 0.25);
   }
@@ -458,9 +459,9 @@
       ['Storm + brake', L0('storm'), L0('heavy')], ['Tower mill', L0('heavy'), L0('tail')], ['Night + fantail', L0('tail'), L0('final')], ['Congratulations', L0('final'), DUR]],
     warm: [1, 20, 40, 60], ready: async () => {
       plants(); dimEnv();
-      people.hero = makePerson('hero', bodies.remy, 1.78, { top: 0xd8301e, bottom: 0x2e3440 });
+      if (!NO_PEOPLE) { people.hero = makePerson('hero', bodies.remy, 1.78, { top: 0xd8301e, bottom: 0x2e3440 });
       people.miller = makePerson('miller', bodies.man, 1.75); people.c1 = makePerson('c1', bodies.man, 1.75); people.c2 = makePerson('c2', bodies.girl, 1.65);
-      people.c3 = makePerson('c3', bodies.man, 1.72); people.c4 = makePerson('c4', bodies.girl, 1.62);
+      people.c3 = makePerson('c3', bodies.man, 1.72); people.c4 = makePerson('c4', bodies.girl, 1.62); }
       Object.values(bodies).forEach(b => { if (b && b.parent) b.parent.visible = false; });
     } });
 })();
