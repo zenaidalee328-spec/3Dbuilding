@@ -1,0 +1,42 @@
+// The words of "Greenhouse": the owner's own script (2026-11-23), NOT trimmed (owner: "trim ni kro").
+// Only his last line (comment/likes prize with another channel's name) is left out. One place: a field that becomes a greenhouse. No people.
+(function (root) {
+  root.SCRIPT = {
+    SPEED: 1.1, END_HOLD: 0.35,
+    LINES: [
+      { id: 'hook',   text: "If you plant food in a place where hail falls, you don't have a plantation, you have a city without food.", pause: 0.05 },
+      { id: 'poly',   text: 'So you put stakes around your plantation and put transparent sheets on top of it. Now sunlight still gets through, but the hail no longer destroys your crops.', pause: 0.05 },
+      { id: 'poly2',  text: "That's the polycarbonate covering.", pause: 0.05 },
+      { id: 'wind',   text: 'But then a storm comes and the wind comes in from underneath and rips off all your covering and your plants die.', pause: 0.05 },
+      { id: 'brace',  text: "So you erect steel arches and lock them together with X-shaped bars to hold the structure in place. That's bracing.", pause: 0.05 },
+      { id: 'feet',   text: "And in addition, you secure the feet in concrete blocks and close the sides with sheets. Now the wind doesn't take everything away.", pause: 0.05 },
+      { id: 'cold',   text: 'But one night it gets too cold and your plants freeze to death.', pause: 0.05 },
+      { id: 'heat',   text: "So you install a heater and a sensor that turns it on automatically when the temperature drops and turns it off when it gets hot. That's the thermostat.", pause: 0.05 },
+      { id: 'hot',    text: "But during the day the sun heats the air inside, which has nowhere to escape, and the heat becomes unbearable, like in a closed car in the sun. Light enters through the glass, turns into heat, and can't escape, causing your plants to die.", pause: 0.05 },
+      { id: 'sky',    text: 'So you install windows in the roof and sides, allowing the hot air to rise and exit from above, while cool air enters from below, preventing it from getting so hot inside. These are skylights.', pause: 0.05 },
+      { id: 'dry',    text: "But you've prevented the rain from reaching the soil. The soil dries out, and your plants die.", pause: 0.05 },
+      { id: 'drip',   text: 'So you place perforated hoses beside your plants that drip water directly onto the roots. This is drip irrigation.', pause: 0.05 },
+      { id: 'rot',    text: 'But now your plants receive too much water, causing the roots to rot and die.', pause: 0.05 },
+      { id: 'drain',  text: 'So you let the excess water drain out. This is drainage.', pause: 0.05 },
+      { id: 'weak',   text: 'But now some of your plants become weak and yellow because the soil lacks nutrients, and some die.', pause: 0.05 },
+      { id: 'fert',   text: 'So you mix fertilizer into the drip irrigation water, and each drop carries the nutrients. This is fertigation.', pause: 0.05 },
+      { id: 'bugs',   text: 'But you open the windows, and insects eat all the leaves, causing your plants to die again.', pause: 0.05 },
+      { id: 'screen', text: "So you cover the windows with a very fine screen that lets air through, but insects can't. That's insect screen.", pause: 0.05 },
+      { id: 'mold',   text: 'But plants release vapor from their leaves, and at night this vapor makes everything wet, causing mold and death.', pause: 0.05 },
+      { id: 'fans',   text: 'So you put things inside that prevent the leaves from retaining water. These are circulation fans.', pause: 0.05 },
+      { id: 'zone',   text: 'But some plants love the heat and others hate it, and some of your plants die.', pause: 0.05 },
+      { id: 'sector', text: 'So you divide the greenhouse into rooms, and in some of them you put a fan that pulls air from outside through a wet wall, bringing in cool air and making the room less hot. These are the sectors.', pause: 0.05 },
+      { id: 'pollen', text: 'But now the self-pollinating plants are full of flowers and hardly produce fruit because nothing inside stirs up the pollen.', pause: 0.05 },
+      { id: 'vib',    text: 'So you pass a vibrator over each cluster, and it spreads the pollen for you. This is vibration pollination.', pause: 0.05 },
+      { id: 'bees',   text: 'But other plants need bees, which the insect screen kept out, and these plants die again.', pause: 0.05 },
+      { id: 'hive',   text: 'So you put boxes of stingless bees inside the greenhouse so they can pollinate the plants.', pause: 0.05 },
+      { id: 'add',    text: "Add gutters to drain the rain, sensors to measure heat and humidity, and a nice farmer's hat.", pause: 0.05 },
+      { id: 'end',    text: "Congratulations, you've built a greenhouse!" },
+    ],
+    KEY: ['hail', 'plantation', 'city', 'food', 'stakes', 'transparent', 'sunlight', 'polycarbonate', 'storm', 'underneath', 'rips',
+      'arches', 'bars', 'bracing', 'concrete', 'sides', 'cold', 'freeze', 'heater', 'sensor', 'thermostat', 'sun', 'car', 'unbearable',
+      'windows', 'roof', 'hot', 'cool', 'skylights', 'rain', 'dries', 'hoses', 'drip', 'roots', 'rot', 'drain', 'drainage', 'yellow',
+      'nutrients', 'fertilizer', 'fertigation', 'insects', 'screen', 'vapor', 'mold', 'fans', 'heat', 'rooms', 'wet', 'wall', 'sectors',
+      'flowers', 'pollen', 'vibrator', 'pollination', 'bees', 'stingless', 'gutters', 'sensors', 'hat', 'congratulations', 'greenhouse'],
+  };
+})(typeof module !== 'undefined' ? module.exports : window);

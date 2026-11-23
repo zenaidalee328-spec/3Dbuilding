@@ -1,0 +1,76 @@
+{
+ "scenes": [
+  {
+   "name": "Hail",
+   "t0": 0,
+   "t1": 5.75
+  },
+  {
+   "name": "Polycarbonate",
+   "t0": 5.75,
+   "t1": 15.56
+  },
+  {
+   "name": "Storm + bracing",
+   "t0": 15.56,
+   "t1": 34.18
+  },
+  {
+   "name": "Thermostat",
+   "t0": 34.18,
+   "t1": 45.02
+  },
+  {
+   "name": "Skylights",
+   "t0": 45.02,
+   "t1": 68.22
+  },
+  {
+   "name": "Drip irrigation",
+   "t0": 68.22,
+   "t1": 78.76
+  },
+  {
+   "name": "Drainage",
+   "t0": 78.76,
+   "t1": 85.53
+  },
+  {
+   "name": "Fertigation",
+   "t0": 85.53,
+   "t1": 96.22
+  },
+  {
+   "name": "Insect screen",
+   "t0": 96.22,
+   "t1": 106.33
+  },
+  {
+   "name": "Circulation fans",
+   "t0": 106.33,
+   "t1": 117.09
+  },
+  {
+   "name": "Sectors",
+   "t0": 117.09,
+   "t1": 130.55
+  },
+  {
+   "name": "Vibration pollination",
+   "t0": 130.55,
+   "t1": 142.91
+  },
+  {
+   "name": "Bees",
+   "t0": 142.91,
+   "t1": 152.15
+  },
+  {
+   "name": "Finish",
+   "t0": 152.15,
+   "t1": 159.59
+  }
+ ],
+ "source": "VH_SCENES",
+ "at": "2026-11-23T17:03:57.930Z"
+}
