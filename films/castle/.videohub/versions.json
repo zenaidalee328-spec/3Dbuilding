@@ -14,5 +14,21 @@
   "chunks": null,
   "notes": [],
   "note": null
+ },
+ {
+  "v": 2,
+  "file": "castle_v2.mp4",
+  "kind": "final",
+  "created": "2026-11-22T20:28:26.385Z",
+  "job": "jmwsaeb7q-381929d6",
+  "mode": "full",
+  "session": {
+   "title": "Claude"
+  },
+  "parent": "castle_v1.mp4",
+  "changedRanges": null,
+  "chunks": null,
+  "notes": [],
+  "note": null
  }
 ]
