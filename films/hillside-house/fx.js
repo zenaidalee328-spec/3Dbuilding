@@ -1,9 +1,8 @@
 // Sound for make-audio.js: [file in sfx/, time (s, 1x), gain dB, (length s)]. Wind bed, rain, water, a sound on every build.
 module.exports = (TL, c) => {
   const L = id => TL.line(id).t0;
-  const Z = ['pil2', 'rain2', 'stair2', 'creep2', 'slide2', 'drain2', 'rock2'].map(id => ['pop', c(id, 'zero'), -12]);
   return [
-    ['wind', 0, -38, TL.DUR * 1.1], ['birds', 0, -20, 5], ...Z,
+    ['wind', 0, -38, TL.DUR * 1.1], ['birds', 0, -20, 5],
     ['soft_whoosh', c('pil', 'lift') - 0.3, -12], ['concrete_thud', c('pil', 'short') + 0.3, -9], ...[0, 1].map(i => ['concrete_thud', c('pil', 'tall') + 0.3 + i * 0.38, -9]),
     ['shower', L('rain'), -13, 7], ...[0, 1, 2, 3].map(i => ['concrete_thud', c('rain', 'ditch') + i * 0.45, -13]), ['water_fill', c('rain', 'around'), -15, 3],
     ['water_fill', c('stair', 'digs') - 0.3, -12, 2.5], ['thud', c('stair', 'digs') + 0.5, -8], ...[0, 1, 2, 3, 4, 5].map(i => ['concrete_thud', c('stair', 'staircase') + i * 0.28, -12]),

@@ -7,17 +7,16 @@
   const { cue, line: LN, DUR } = window.TL;
   const c = (l, w, n) => cue(l, w, n), L0 = id => LN(id).t0;
   const T = {
-    lift: c('pil', 'lift'), short: c('pil', 'short'), tall: c('pil', 'tall'), level: c('pil', 'level'), z1: c('pil2', 'zero'),
-    rain0: L0('rain'), washes: c('rain', 'washes'), ditch: c('rain', 'ditch'), around: c('rain', 'around'), z2: c('rain2', 'zero'),
-    stair0: L0('stair'), digs: c('stair', 'digs'), stairs: c('stair', 'staircase'), step: c('stair', 'step'), z3: c('stair2', 'zero'),
-    creep0: L0('creep'), creeps: c('creep', 'creeps'), bend: c('creep', 'bend'), drill: c('creep', 'drill'), rockw: c('creep', 'rock'), steel: c('creep', 'steel'), z4: c('creep2', 'zero'),
-    slide0: L0('slide'), week: c('slide', 'week'), slide: c('slide', 'slide'), stitch: c('slide', 'stitch'), bars: c('slide', 'bars'), spray: c('slide', 'spray'), z5: c('slide2', 'zero'),
-    drain0: L0('drain'), builds: c('drain', 'builds'), push: c('drain', 'push'), drainw: c('drain', 'drain'), z6: c('drain2', 'zero'),
-    rock0: L0('rock'), rolls: c('rock', 'rolls'), stretch: c('rock', 'stretch'), net: c('rock', 'net'), never: c('rock', 'never'), knows: c('rock', 'knows'), z7: c('rock2', 'zero'),
+    lift: c('pil', 'lift'), short: c('pil', 'short'), tall: c('pil', 'tall'), level: c('pil', 'level'), z1: L0('pil2') + 0.5,
+    rain0: L0('rain'), washes: c('rain', 'washes'), ditch: c('rain', 'ditch'), around: c('rain', 'around'), z2: L0('rain2') + 0.5,
+    stair0: L0('stair'), digs: c('stair', 'digs'), stairs: c('stair', 'staircase'), step: c('stair', 'step'), z3: L0('stair2') + 0.5,
+    creep0: L0('creep'), creeps: c('creep', 'creeps'), bend: c('creep', 'bend'), drill: c('creep', 'drill'), rockw: c('creep', 'rock'), steel: c('creep', 'steel'), z4: L0('creep2') + 0.6,
+    slide0: L0('slide'), week: c('slide', 'week'), slide: c('slide', 'slide'), stitch: c('slide', 'stitch'), bars: c('slide', 'bars'), spray: c('slide', 'spray'), z5: L0('slide2') + 0.6,
+    drain0: L0('drain'), builds: c('drain', 'builds'), push: c('drain', 'push'), drainw: c('drain', 'drain'), z6: L0('drain2') + 0.6,
+    rock0: L0('rock'), rolls: c('rock', 'rolls'), stretch: c('rock', 'stretch'), net: c('rock', 'net'), never: c('rock', 'never'), knows: c('rock', 'knows'),
     pump0: L0('pump'), pump: c('pump', 'pump'), tank: c('pump', 'tank'), cart: c('pump', 'cart'), groc: c('pump', 'groceries'), hill: c('pump', 'hill'),
     end0: L0('end'), first: c('end', 'first'),
   };
-  const ZEROS = [T.z1, T.z2, T.z3, T.z4, T.z5, T.z6, T.z7];
   // the cutaway (section through the hill at x = 3.6) is shown in these windows (each starts/ends on a hard cut)
   const SECW = [[T.creep0 - 0.05, T.week - 0.4], [T.stitch - 0.1, T.spray - 0.1], [T.drain0 - 0.1, T.rock0 - 0.1]];
   const secOn = t => SECW.some(([a, b]) => t >= a && t < b);
@@ -130,12 +129,12 @@
   // ---------- 2) the crest channel (a concrete U across the slope above the house), z = -14.5, x -15 .. 14
   const CHZ = -14.5, CHX0 = -15, CHX1 = 14;
   const chan = []; for (let x = CHX0; x < CHX1; x += 1) { const gq = new THREE.Group(), y = hAt(x + 0.5, CHZ);
-    const b = new THREE.Mesh(new THREE.BoxGeometry(1.02, 0.14, 1.3), CONC); b.position.y = -0.42; gq.add(b);
-    [-1, 1].forEach(s => { const w = new THREE.Mesh(new THREE.BoxGeometry(1.02, 0.62, 0.14), CONC); w.position.set(0, -0.15, s * 0.6); gq.add(w); });
+    const b = new THREE.Mesh(new THREE.BoxGeometry(1.02, 0.14, 1.3), CONC); b.position.y = 0.05; gq.add(b);
+    [-1, 1].forEach(s => { const w = new THREE.Mesh(new THREE.BoxGeometry(1.02, 0.62, 0.14), CONC); w.position.set(0, 0.3, s * 0.6); gq.add(w); });
     gq.position.set(x + 0.5, y, CHZ); scene.add(sh(gq)); chan.push(gq); }
   const runUp = [], runLo = []; for (let i = 0; i < 7; i++) { const x0 = -7 + i * 2.3 + hash(i) * 0.8, wig = u => 0.5 * Math.sin(u * 7 + i);
     runUp.push(ribbon(line([x0, -25], [x0, CHZ - 0.7], 20, wig), 0.9)); runLo.push(ribbon(line([x0 + wig(0.5), CHZ + 0.7], [x0 * 0.7, -3.4], 16, u => 0.3 * Math.sin(u * 9 + i)), 0.9)); }
-  const chanWater = ribbon(line([CHX0, CHZ], [CHX1, CHZ], 40), 1.0, -0.28);
+  const chanWater = ribbon(line([CHX0, CHZ], [CHX1, CHZ], 40), 1.0, 0.2);
   // ---------- 3) downhill at x = 14.5: fast water (later muddy), the hole by the neighbour, then the hydraulic staircase
   const STX = 14.5;
   const downWater = ribbon(line([STX, CHZ], [STX, 13.2], 50, u => 0.35 * Math.sin(u * 11)), 1.4);
@@ -319,7 +318,9 @@
     [T.lift - 0.9, [15, 1.0, 25], [-0.5, 1.4, 0], 48],                       // the house lifts, the columns grow (whole house in frame)
     [T.z1 - 0.3, [10.5, 2.0, 17], [0, 2.0, 0], 46],                          // pilotis
     [T.rain0 - 0.1, [19, 15, 15], [1, 2.5, -10], 50],                            // high: the rain runs down onto the house; the channel is cut across
-    [T.digs - 0.4, [18, -3.4, 26], [14.5, 1.5, -4], 50],                      // from the street: the fast water, the hole, the staircase builds
+    [T.ditch - 0.5, [-15, 12.5, -3.5], [1, 5.8, -14.5], 50],                   // down the line of the channel: it is cut across the slope
+    [T.digs - 0.4, [18, -3.4, 26], [14.5, 1.5, -4], 50, 'cut'],                      // from the street: the fast water, the hole, the staircase builds
+    [T.step - 0.3, [18.5, 1.2, 11], [14.5, 0.2, -1], 48],                     // close on the steps: the water slows step by step
     [T.creep0 - 0.05, [31, 1.0, -0.3], [SX, -2.2, -0.3], 48, 'cut'],            // CUTAWAY: soil creeps, the drill goes down to rock, piles
     [T.week - 0.4, [-17, 13, 3], [0, 3.5, -9], 50, 'cut'],                      // a week of rain: the crack across the slope
     [T.stitch - 0.1, [27, 4.0, -7.6], [SX, 0.6, -8.2], 48, 'cut'],           // CUTAWAY: soil nails driven in
@@ -397,7 +398,7 @@
     const stU = k(t, T.stairs - 0.15, T.stairs + 1.5), stOK = !SEC;
     const downA = sm(k(t, T.around, T.around + 0.6)) * (1 - sm(k(t, T.stairs + 0.6, T.stairs + 1.6)));
     flow(downWater, t, 9, stOK ? 0.8 * downA : 0, t > T.digs - 0.4 ? 0xa87c50 : 0xffffff);
-    const hole = eout(k(t, T.digs + 0.2, T.digs + 1.4)); crater.visible = stOK && hole > 0.01; crater.scale.setScalar(0.05 + 1.6 * hole);
+    const hole = eout(k(t, T.digs + 0.2, T.digs + 1.4)); crater.visible = stOK && hole > 0.01 && t < T.stairs + 1.6; crater.scale.setScalar(0.05 + 1.6 * hole);
     if (t > T.digs + 0.2 && t < T.digs + 2) dust(t, T.digs + 0.2, V(17.2, hAt(17.2, 3.8), 3.8), 10, 1.8, 0x8a6a46, 1.4, 1.6);
     neighbour.visible = shed.visible = stOK; shed.rotation.set(0.25 * hole, 0, -0.32 * hole); shed.position.y = hAt(18.4, 5.2) - 0.35 * hole;
     STEPS.forEach((s, i) => { const u = eout(clamp(stU * STEPS.length * 0.45 - i * 0.45)); s.visible = stOK && u > 0.01; s.position.y = hAt(STX, s.position.z - 0.55) + 0.08 - (1 - u) * 1.6;
@@ -450,11 +451,9 @@
     for (let i = sN; i < SPR.length; i++) SPR[i].visible = false;
   }
 
-  // ---------- overlay: the score badge (small, top-left), the creep chevrons in the cutaway, vignette
+  // ---------- overlay: the creep chevrons in the cutaway, vignette
   function overlay(t) {
     B.vignette(0.12);
-    const n = ZEROS.filter(z => t >= z).length;
-    if (n > 0) { const lastZ = ZEROS[n - 1], pop = 1 - k(t, lastZ, lastZ + 0.5); B.badge(36, 120, sm(k(t, T.z1 - 0.05, T.z1 + 0.25)), 'HOUSE  vs  HILL', `${n} : 0`, pop > 0 ? '#ffffff' : '#7dff8a', 290); }
     if (secOn(t) && t > T.creeps - 0.2 && t < T.drill) { const a = sm(k(t, T.creeps - 0.2, T.creeps + 0.2)) * (1 - sm(k(t, T.drill - 0.3, T.drill)));
       for (let i = 0; i < 6; i++) { const z = -4.4 + ((i * 1.6 + t * 0.9) % 9.6), p0 = B.project(V(SX + 0.2, hAt(SX, z) - 0.65, z)), p1 = B.project(V(SX + 0.2, hAt(SX, z + 0.5) - 0.65, z + 0.5)); if (!p0.ok) continue;
         const an = Math.atan2(p1.y - p0.y, p1.x - p0.x); g.save(); g.translate(p0.x, p0.y); g.rotate(an); g.globalAlpha = a * 0.9; g.strokeStyle = '#fff3d6'; g.lineWidth = 7; g.lineCap = 'round'; g.lineJoin = 'round';
