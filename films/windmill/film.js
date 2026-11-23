@@ -11,7 +11,7 @@
     post0: L0('post'), hammer: c('post', 'hammer'), post: c('post', 'post'), nail: c('post', 'nail'), sails: c('post', 'sails'),
     wind: c('free', 'wind'), shift: L0('shift'), changes: c('shift', 'changes'), stop: c('shift', 'stop'),
     genius: L0('tailpole'), whole: c('tailpole', 'whole'), house: c('tailpole', 'house'), push: c('tailpole', 'push'), pole: c('tailpole', 'pole'),
-    cong2: L0('cong2'), storm: c('storm', 'storm'), wildly: c('storm', 'wildly'), miller: c('storm', 'miller'), vanish: c('storm', 'vanishes'),
+    cong2: L0('storm') - 0.4, storm: c('storm', 'storm'), wildly: c('storm', 'wildly'), miller: c('storm', 'miller'), vanish: c('storm', 'vanishes'),
     brake0: L0('brake'), clamp: c('brake', 'clamp'), brake: c('brake', 'brake'), rubs: c('brake', 'rubs'), smokes: c('brake', 'smokes'),
     heavy0: L0('heavy'), bigger: c('heavy', 'bigger'), heavy: c('heavy', 'heavy'),
     tower0: L0('tower'), build: c('tower', 'build'), tower: c('tower', 'tower'), cap: c('tower', 'cap'), turns: c('tower', 'turns'),
@@ -301,7 +301,6 @@
     [T.hungry + 0.3, [1.6, 2.7, 15.5], [0.6, 3.8, 0], 52],               // WIDE: the donkey eats in front; the post drops in, sails, wind, the wind changes
     [T.genius - 0.3, [3.5, 2.0, 7.5], [0, 6.4, 0], 50],                 // genius: up at the stopped sails
     [T.whole - 0.1, [1.6, 2.9, 15.5], [0, 4.6, 0], 52],                // WIDE: the house drops on, pushed round
-    [T.cong2, [1.5, 0.9, 12.5], [0.4, 5.5, 0], 54],                       // CONGRATULATIONS (low)
     [T.storm - 0.1, [-7.5, 2.6, 11.5], [0, 4.6, 0], 50],               // the storm, flour bursts
     [T.brake - 0.2, [5.5, 5.0, 11.5], [0.6, 7.3, 1.6], 46],             // the brake wheel smokes
     [T.bigger - 0.1, [0.3, 1.9, -11.8], [-3.4, 1.5, -4.6], 48],        // bigger sails; too heavy to push (from behind)

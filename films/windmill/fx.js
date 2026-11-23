@@ -11,7 +11,7 @@ module.exports = (TL, c) => {
     ...[0, 1, 2, 3].map(i => ['metal_clank', c('post', 'nail') + i * 0.24, -12]), ['wind', c('free', 'wind') - 0.3, -22, 2.5],
     ['wind', c('shift', 'changes'), -22, 2], ['soft_whoosh', c('tailpole', 'whole') - 0.4, -11],
     ['concrete_thud', c('tailpole', 'house') + 0.1, -5], ['pipe_clunk', c('tailpole', 'push'), -12], ['pipe_clunk', c('tailpole', 'pole'), -12],
-    ['birds', L('cong2'), -16, 2.5], ['wind', c('storm', 'storm') - 0.3, -15, 4.5], ['shower', c('storm', 'storm'), -9, 7], ['soft_whoosh', c('storm', 'vanishes'), -8],
+    ['wind', c('storm', 'storm') - 0.3, -15, 4.5], ['shower', c('storm', 'storm'), -9, 7], ['soft_whoosh', c('storm', 'vanishes'), -8],
     ['metal_clank', c('brake', 'clamp'), -6], ['pipe_clunk', c('brake', 'brake') + 0.2, -8], ['shower', c('brake', 'rubs'), -14, 1.6],
     ['pipe_clunk', c('heavy', 'heavy'), -10], ['thud', c('heavy', 'push'), -12],
     ...[0, 1, 2, 3, 4, 5].map(i => ['concrete_thud', c('tower', 'build') + i * 0.24, -10]), ['thud', c('tower', 'cap') - 0.1, -6], ['pipe_clunk', c('tower', 'turns'), -10],

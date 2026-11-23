@@ -13,7 +13,6 @@
       { id: 'free',     text: 'Now the wind turns your stones for free.', pause: 0.05 },
       { id: 'shift',    text: 'But the wind changes direction and your sails stop.', pause: 0.05 },
       { id: 'tailpole', text: 'So you put the whole mill house on the post and push it round with a long tail pole.', pause: 0.05 },
-      { id: 'cong2',    text: 'Congratulations! You just built the post mill.', pause: 0.05 },
       { id: 'storm',    text: 'But a storm hits, the sails spin wildly, and the miller vanishes in flour.', pause: 0.05 },
       { id: 'brake',    text: 'So you clamp a brake on the big wheel, and it rubs so hard it smokes.', pause: 0.05 },
       { id: 'heavy',    text: 'But you want bigger sails, and the house gets too heavy to push.', pause: 0.05 },
