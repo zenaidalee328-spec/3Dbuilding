@@ -18,7 +18,7 @@
     end0: L0('end'), first: c('end', 'first'),
   };
   // the cutaway (section through the hill at x = 3.6) is shown in these windows (each starts/ends on a hard cut)
-  const SECW = [[T.creep0 - 0.05, T.week - 0.4], [T.drain0 - 0.1, T.rock0 - 0.1]];
+  const SECW = [];   // owner: no cutaways, everything is shown plainly on the slope
   const secOn = t => SECW.some(([a, b]) => t >= a && t < b);
 
   // ---------- the slope: falls toward +z (the street), a plateau on top (z < -26), the street flat below (z > 14)
@@ -216,6 +216,35 @@
     gq.position.copy(P0); gq.lookAt(P0.clone().add(PIPED)); scene.add(gq); return { gq, P0 }; });
   const outlets = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.1, 0.1, 0.5, 10), clipM(PIPEM.clone()), 20); { const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), V(0, -0.1, 1).normalize()); let n = 0;
     for (let x = -7; x <= 7.1; x += 3.5) PIPEZ.forEach(z => { M4.compose(V(x, hAt(x, z) + 0.1, z + 0.1), Q, V(1, 1, 1)); outlets.setMatrixAt(n++, M4); }); outlets.count = n; scene.add(outlets); }
+  // ---------- 4b) piles shown plainly: a drilling rig beside the house, holes, steel cages lowered in, concrete, pile caps
+  const PX0 = 5.4, PZS = [-2.6, 0, 2.6], YEL = new THREE.MeshStandardMaterial({ color: 0xe0a91c, roughness: 0.55, envMapIntensity: 0.5 });
+  const rig = new THREE.Group(); scene.add(rig);
+  { [-0.85, 0.85].forEach(z => { const tr = new THREE.Mesh(rbox(3.4, 0.7, 0.6, 0.2), DARK); tr.position.set(0, 0.35, z); rig.add(tr); });
+    const body = new THREE.Mesh(rbox(2.6, 1.2, 2.0, 0.08), YEL); body.position.set(0.2, 1.3, 0); rig.add(body);
+    const cab = new THREE.Mesh(rbox(1.1, 1.3, 1.1, 0.06), YEL); cab.position.set(0.6, 2.5, 0.4); rig.add(cab);
+    const cw = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.7), GLASS); cw.position.set(0.6, 2.65, 0.96); rig.add(cw);
+    const boom = new THREE.Mesh(rbox(2.2, 0.35, 0.35, 0.05), YEL); boom.position.set(-1.2, 1.7, 0); rig.add(boom);
+    const mast = new THREE.Mesh(rbox(0.45, 8.5, 0.45, 0.05), YEL); mast.position.set(-2.4, 4.6, -0.55); rig.add(mast); }
+  sh(rig);
+  const auger = new THREE.Group(); rig.add(auger);
+  { const hp = []; for (let i = 0; i <= 120; i++) { const a = i / 120 * Math.PI * 2 * 7; hp.push(V(Math.cos(a) * 0.4, -i / 120 * 3.2, Math.sin(a) * 0.4)); }
+    auger.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(hp), 240, 0.08, 6), STEEL));
+    const core = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 6.5, 10), STEEL); auger.add(core); }
+  const PIL2 = PZS.map(z => { const gy = hAt(PX0, z);
+    const hole = new THREE.Mesh(new THREE.CircleGeometry(0.5, 24), new THREE.MeshStandardMaterial({ color: 0x1c140c, roughness: 1, polygonOffset: true, polygonOffsetFactor: -3 })); hole.rotation.x = -Math.PI / 2; hole.position.set(PX0, gy + 0.04, z); scene.add(hole);
+    const cage = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 4.5, 10, 9, true), new THREE.MeshBasicMaterial({ color: 0xb4602c, wireframe: true })); scene.add(cage);
+    const top = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.25, 24), CONC); top.position.set(PX0, gy + 0.08, z); scene.add(top);
+    const cap = new THREE.Mesh(rbox(2.4, 0.55, 0.9, 0.05), CONC); cap.position.set((PX0 + 3.6) / 2, gy + 0.05, z); cap.castShadow = cap.receiveShadow = true; scene.add(cap);
+    return { z, gy, hole, cage, top, cap }; });
+  // ---------- 6b) deep drains shown plainly: damp patches + cracks on the concrete skin, perforated pipes pushed in, water pours out
+  const NRM = V(0, 1, SL).normalize(), QN = new THREE.Quaternion().setFromUnitVectors(V(0, 0, 1), NRM);
+  const damp = Array.from({ length: 14 }, (_, i) => { const x = -8 + 16 * hash(i * 3.1), z = lerp(-11.2, -5.0, hash(i * 7.7)), m = new THREE.Mesh(new THREE.CircleGeometry(1, 28), new THREE.MeshStandardMaterial({ color: 0x5a5852, roughness: 0.4, transparent: true, opacity: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 }));
+    m.quaternion.copy(QN); m.position.set(x, hAt(x, z) + 0.13, z); m.scale.set(0.9 + hash(i) * 0.9, 0.6 + hash(i * 2) * 0.6, 1); scene.add(m); return { m, t0: hash(i * 5.5) * 0.9 }; });
+  const cracks2 = [[-6, -9.6], [-1.5, -7.4], [3, -10.2], [6.5, -6.6]].map(([x, z], i) => { const rb = ribbon(line([x - 1.3, z], [x + 1.3, z + 0.3], 14, u => 0.18 * Math.sin(u * 23 + i) + 0.1 * Math.sin(u * 61)), 0.07, 0.16); rb.material.map = null; rb.material.color.setHex(0x1c1a18); return { rb, x, z }; });
+  const DPIPES = []; { const pg = new THREE.CylinderGeometry(0.12, 0.12, 6, 14); pg.rotateX(Math.PI / 2); pg.translate(0, 0, 3);
+    for (let x = -7; x <= 7.1; x += 3.5) PIPEZ.forEach((z, r) => { const P0 = V(x, hAt(x, z) + 0.12, z), m = new THREE.Mesh(pg, PIPEM); m.castShadow = true; m.position.copy(P0); m.lookAt(P0.clone().add(PIPED)); scene.add(m);
+      DPIPES.push({ m, P0, t0: (2 - r) * 0.3 + (x + 7) / 3.5 * 0.08 }); }); }
+
   // ---------- 7) the rockfall net (posts + steel mesh) and the boulder
   const NETZ = -19, NX0 = -10, NX1 = 10, NETH = 3.2;
   const posts = []; for (let x = NX0; x <= NX1 + 0.1; x += 4) { const p = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, NETH + 0.4, 10), STEEL); p.geometry.translate(0, (NETH + 0.4) / 2, 0); p.position.set(x, hAt(x, NETZ) - 0.3, NETZ); p.rotation.x = -0.12; p.castShadow = true; scene.add(p); posts.push(p); }
@@ -325,10 +354,10 @@
     [T.ditch - 0.5, [-15, 12.5, -3.5], [1, 5.8, -14.5], 50],                   // down the line of the channel: it is cut across the slope
     [T.digs - 0.4, [18, -3.4, 26], [14.5, 1.5, -4], 50, 'cut'],                      // from the street: the fast water, the hole, the staircase builds
     [T.step - 0.3, [18.5, 1.2, 11], [14.5, 0.2, -1], 48],                     // close on the steps: the water slows step by step
-    [T.creep0 - 0.05, [31, 1.0, -0.3], [SX, -2.2, -0.3], 48, 'cut'],            // CUTAWAY: soil creeps, the drill goes down to rock, piles
+    [T.creep0 - 0.05, [22, 7.5, 13], [4.2, 1.0, -0.8], 48, 'cut'],      // the right side of the house: columns lean, the rig drills beside them            // CUTAWAY: soil creeps, the drill goes down to rock, piles
     [T.week - 0.4, [-17, 13, 3], [0, 3.5, -9], 50, 'cut'],                      // a week of rain: the crack across the slope
     [T.stitch - 0.25, [-15.5, 12.5, 2.5], [0, 3.6, -7.8], 48, 'cut'],      // close on the slope: the steel bars go in row by row, then the concrete is sprayed over
-    [T.drain0 - 0.1, [27, 4.0, -7.6], [SX, 0.6, -8.2], 48, 'cut'],           // CUTAWAY: water builds up, the drains go in
+    [T.drain0 - 0.1, [-14, 11.5, 0.5], [0.5, 3.8, -8.2], 46, 'cut'],                // the concrete skin: damp patches, cracks; the drain pipes go in, water pours out           // CUTAWAY: water builds up, the drains go in
     [T.rock0 - 0.1, [11, 14, -7], [0.5, 9.5, -24], 48, 'cut'],                // the loose rock on the edge above
     [T.stretch - 0.3, [16, 14.5, -4], [0, 8, -19.5], 50],                       // the net goes up, the rock hits it
     [T.knows - 0.05, [7.5, 3.2, 12.5], [0, 2.6, 0], 46, 'cut'],               // the house never knew
@@ -383,9 +412,9 @@
     const lu = eio(k(t, T.lift - 0.1, T.short - 0.25));
     house.position.set(0, lerp(0.15, FL, lu), lerp(0.0, 0, lu)); house.rotation.set(lerp(TH, 0, lu), 0, lerp(0.05, 0, lu));
     if (t > T.lift - 0.1 && t < T.lift + 0.9) dust(t, T.lift - 0.05, V(0, 0.2, 0), 14, 4, 0xb89a76, 1.2, 2.6);
-    const creepA = 0.08 * sm(k(t, T.creeps, T.bend + 0.5)) * (1 - sm(k(t, T.steel, T.z4)));
+    const creepA = 0.12 * sm(k(t, T.creeps, T.bend + 0.5)) * (1 - sm(k(t, T.steel, T.z4)));
     COLS.forEach((cl, i) => { const t0 = cl.row === 0 ? T.short - 0.1 : T.tall - 0.1 + (cl.row - 1) * 0.35, u = eout(k(t, t0, t0 + 0.6));
-      cl.m.visible = u > 0.01; cl.m.position.set(cl.x, FL, cl.z); cl.m.scale.set(1, Math.max(0.01, cl.len * u), 1); cl.m.rotation.x = -creepA * (cl.x > 3 ? 1 : 0.6);
+      cl.m.visible = u > 0.01; cl.m.position.set(cl.x, FL, cl.z); cl.m.scale.set(1, Math.max(0.01, cl.len * u), 1); cl.m.rotation.x = -creepA;
       if (u > 0.95 && t < t0 + 1.3) dust(t, t0 + 0.6, V(cl.x, hAt(cl.x, cl.z), cl.z), 5, 0.8, 0xb89a76, 0.7, 0.9); });
 
     // 2) rain runoff down the slope; the crest channel is cut across (left to right), then carries the water sideways
@@ -429,7 +458,7 @@
     waterU.fill.value = sm(k(t, T.builds - 0.1, T.push)) * (1 - 0.85 * sm(k(t, T.drainw - 0.3, T.z6 + 0.3))); gw.visible = SEC && t > T.drain0 - 0.2;
     PIPES.forEach((p, i) => { const u = eio(k(t, T.push + i * 0.18, T.push + 1.0 + i * 0.18)); p.gq.visible = SEC && t > T.push - 0.1; p.gq.position.copy(p.P0).addScaledVector(PIPED, -7 + 7 * u);
       if (p.gq.visible && t > T.drainw - 0.3) for (let j = 0; j < 4; j++) { const ph = (t * 1.6 + j / 4 + i * 0.3) % 1; puff(V(SX + 0.25, p.P0.y - ph * 1.6, p.P0.z + 0.1 + ph * 0.3), 0x8cc4ff, 0.22, 0.85 * (1 - ph)); } });
-    outlets.visible = t > T.z6;
+    outlets.visible = false;
     // 7) the boulder teeters, rolls; the posts rise, the net stretches left to right; the hit, the bulge, it settles
     const NS = k(t, T.stretch, T.net + 0.5);
     posts.forEach((p, i) => { const u = eout(clamp(NS * 3 - i * 0.35)); p.visible = u > 0.01; p.scale.set(1, Math.max(0.01, u), 1); });
@@ -453,14 +482,39 @@
     downFlow.material.opacity = 0.7 * sm(k(t, T.tank + 0.8, T.tank + 1.2)); downFlow.material.map.offset.x = -t * 1.2; downFlow.visible = downFlow.material.opacity > 0.01;
     const rl = eout(k(t, T.cart - 0.5, T.cart + 0.3)); rails.visible = rl > 0.01; rails.position.y = -(1 - rl) * 3;
     const cu = eio(k(t, T.groc - 0.2, T.hill + 0.8)); cart.visible = t > T.cart - 0.2; const cp = RA.clone().lerp(RB, cu); cart.position.set(RX, cp.y - 0.25, cp.z); cart.scale.setScalar(Math.max(0.01, eout(k(t, T.cart - 0.2, T.cart + 0.2))));
+    {
+    // 4b) piles plainly: the rig rolls in, drills three holes beside the columns (brown spoil, then grey rock chips), cages go down, concrete, caps
+    const RIGON = t > T.creep0 - 0.1 && t < T.week - 0.4; rig.visible = RIGON;
+    const D0 = T.drill - 0.25, D1 = T.rockw + 0.8, per = (D1 - D0) / 3, hi = clamp(Math.floor((t - D0) / per), 0, 2), hu = clamp((t - D0 - hi * per) / per);
+    let rz = lerp(12, PZS[0], eio(k(t, T.bend - 0.2, D0)));
+    if (t > D0) rz = hi === 0 ? PZS[0] : hu < 0.25 ? lerp(PZS[hi - 1], PZS[hi], eio(hu / 0.25)) : PZS[hi];
+    if (t > D1) rz = PZS[2];
+    rig.position.set(PX0 + 3.0, hAt(PX0 + 3, rz) - 0.05, rz);
+    const drilling = t > D0 && t < D1 && hu > 0.25, dd = drilling ? eio((hu - 0.25) / 0.75) : 0;
+    auger.position.set(-3.0, 3.6 - dd * 5.6, 0); auger.rotation.y = drilling ? t * 16 : 0;
+    if (drilling) { const rockNow = (hu - 0.25) / 0.75 > 0.55; dust(t, Math.floor(t * 6) / 6, V(PX0, hAt(PX0, rz), rz), 4, 0.8, rockNow ? 0x9a9890 : 0x6e4a2a, 0.5, 0.8); }
+    PIL2.forEach((p, i) => { const drilled = t > D0 + i * per + per * 0.3; p.hole.visible = RIGON && drilled;
+      const cg = k(t, T.steel - 0.1 + i * 0.25, T.steel + 0.6 + i * 0.25); p.cage.visible = RIGON && cg > 0 && cg < 1; p.cage.position.set(PX0, p.gy + 2.25 + 3.0 - cg * 5.5, p.z);
+      const fl = eout(k(t, T.steel + 0.7 + i * 0.2, T.steel + 1.1 + i * 0.2)); p.top.visible = fl > 0.01 && t < T.week - 0.4; p.top.scale.set(1, Math.max(0.01, fl), 1);
+      const cp = eout(k(t, T.z4 - 0.9 + i * 0.12, T.z4 - 0.4 + i * 0.12)); p.cap.visible = cp > 0.01; p.cap.position.y = p.gy + 0.25 - (1 - cp) * 0.7;
+      if (fl > 0.05 && fl < 0.95) dust(t, T.steel + 0.7 + i * 0.2, V(PX0, p.gy, p.z), 5, 0.6, 0xc8c4bc, 0.5, 0.7); });
+    // 6b) drains plainly: damp patches + cracks grow, pipes are pushed in, water pours out, the patches dry
+    const wetU = sm(k(t, T.builds - 0.2, T.push)) * (1 - sm(k(t, T.drainw, T.z6 + 0.4)));
+    damp.forEach(d => { const u = sm(k(t, T.builds - 0.2 + d.t0, T.push + d.t0)) * (1 - sm(k(t, T.drainw, T.z6 + 0.4))); d.m.visible = u > 0.01 && t < T.rock0; d.m.material.opacity = 0.65 * u; });
+    cracks2.forEach((c2, i) => { const u = sm(k(t, T.builds + 0.6 + i * 0.25, T.builds + 0.9 + i * 0.25)); c2.rb.visible = u > 0.01 && t < T.rock0; c2.rb.material.opacity = 0.9 * u;
+      if (wetU > 0.3 && t < T.rock0) puff(V(c2.x + (hash(i + Math.floor(t * 6)) - 0.5) * 2, hAt(c2.x, c2.z) + 0.2 - ((t * 1.5 + i * 0.3) % 1) * 0.6, c2.z + 0.2), 0x7ab4ff, 0.25, 0.7 * wetU); });
+    DPIPES.forEach((d, i) => { const a = T.push + d.t0, u = eio(k(t, a, a + 0.5)); d.m.visible = t > a - 0.05; d.m.position.copy(d.P0).addScaledVector(PIPED, -3.5 * (1 - u) - 0.4 * u);
+      if (u >= 1 && t > T.drainw - 0.3 && t < T.rock0) { const on = sm(k(t, T.drainw - 0.3, T.drainw + 0.2)) * (1 - 0.6 * sm(k(t, T.z6, T.z6 + 1)));
+        for (let j = 0; j < 3; j++) { const ph = (t * 1.8 + j / 3 + i * 0.13) % 1, o = d.P0.clone().addScaledVector(PIPED, -0.4); puff(V(o.x, o.y - ph * ph * 1.6, o.z + ph * 0.9), 0x8cc4ff, 0.6, 0.9 * on * (1 - ph)); } } });
+    }
     for (let i = sN; i < SPR.length; i++) SPR[i].visible = false;
   }
 
   // ---------- overlay: the creep chevrons in the cutaway, vignette
   function overlay(t) {
     B.vignette(0.12);
-    if (secOn(t) && t > T.creeps - 0.2 && t < T.drill) { const a = sm(k(t, T.creeps - 0.2, T.creeps + 0.2)) * (1 - sm(k(t, T.drill - 0.3, T.drill)));
-      for (let i = 0; i < 6; i++) { const z = -4.4 + ((i * 1.6 + t * 0.9) % 9.6), p0 = B.project(V(SX + 0.2, hAt(SX, z) - 0.65, z)), p1 = B.project(V(SX + 0.2, hAt(SX, z + 0.5) - 0.65, z + 0.5)); if (!p0.ok) continue;
+    if (t > T.creeps - 0.2 && t < T.drill) { const a = sm(k(t, T.creeps - 0.2, T.creeps + 0.2)) * (1 - sm(k(t, T.drill - 0.3, T.drill)));
+      for (let i = 0; i < 6; i++) { const z = -4.4 + ((i * 1.6 + t * 0.9) % 9.6), p0 = B.project(V(6.4, hAt(6.4, z) + 0.12, z)), p1 = B.project(V(6.4, hAt(6.4, z + 0.5) + 0.12, z + 0.5)); if (!p0.ok) continue;
         const an = Math.atan2(p1.y - p0.y, p1.x - p0.x); g.save(); g.translate(p0.x, p0.y); g.rotate(an); g.globalAlpha = a * 0.9; g.strokeStyle = '#fff3d6'; g.lineWidth = 7; g.lineCap = 'round'; g.lineJoin = 'round';
         g.beginPath(); g.moveTo(-12, -16); g.lineTo(8, 0); g.lineTo(-12, 16); g.stroke(); g.restore(); } }
     B.tint(Math.max(0, 1 - Math.abs(t - T.never) / 0.12) * 0.25, '#ffffff', 'screen');
