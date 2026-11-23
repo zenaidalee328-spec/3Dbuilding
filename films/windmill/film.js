@@ -7,7 +7,7 @@
   const c = (l, w, n) => cue(l, w, n), L0 = id => LN(id).t0;
   const T = {
     gorilla: c('hook', 'gorilla'), round: c('quern', 'round'), spin: c('quern', 'spin'), huge: c('donkey', 'huge'), donkey: c('donkey', 'donkey'),
-    circles: c('circle', 'circles'), flour: c('circle', 'flour'), cong1: L0('cong1'), eats: c('hungry', 'eats'), hungry: L0('hungry'),
+    circles: c('circle', 'circles'), flour: c('circle', 'flour'), cong1: L0('hungry') - 0.9, eats: c('hungry', 'eats'), hungry: L0('hungry'),
     post0: L0('post'), hammer: c('post', 'hammer'), post: c('post', 'post'), nail: c('post', 'nail'), sails: c('post', 'sails'),
     wind: c('free', 'wind'), shift: L0('shift'), changes: c('shift', 'changes'), stop: c('shift', 'stop'),
     genius: L0('tailpole'), whole: c('tailpole', 'whole'), house: c('tailpole', 'house'), push: c('tailpole', 'push'), pole: c('tailpole', 'pole'),
@@ -15,7 +15,7 @@
     brake0: L0('brake'), clamp: c('brake', 'clamp'), brake: c('brake', 'brake'), rubs: c('brake', 'rubs'), smokes: c('brake', 'smokes'),
     heavy0: L0('heavy'), bigger: c('heavy', 'bigger'), heavy: c('heavy', 'heavy'),
     tower0: L0('tower'), build: c('tower', 'build'), tower: c('tower', 'tower'), cap: c('tower', 'cap'), turns: c('tower', 'turns'),
-    cong3: L0('cong3'), night: c('tail', 'night'), swings: c('tail', 'swings'), rips: c('tail', 'rips'),
+    cong3: L0('tail') - 0.4, night: c('tail', 'night'), swings: c('tail', 'swings'), rips: c('tail', 'rips'),
     brain: L0('fan'), stick: c('fan', 'stick'), windmill: c('fan', 'windmill'), fan0: L0('fan'),
     shifts: c('fan2', 'shifts'), spins: c('fan2', 'spins'), cranks: c('fan2', 'cranks'), itself: c('fan2', 'itself'),
     final: L0('final'), edmund: c('final', 'edmund'),
@@ -298,7 +298,6 @@
     [0.0, [2.3, 1.35, 3.3], [0, 0.45, -0.3], 44],                    // the hero rubbing wheat at the saddle quern
     [T.round - 0.4, [1.7, 1.2, 2.6], [0, 0.45, -0.2], 44],             // the round stone drops on and spins
     [T.huge - 0.1, [5.8, 2.6, 8.0], [0.2, 0.9, 0.4], 48],                  // the donkey mill: stones, beam, the circle
-    [T.cong1, [2.8, 0.6, 5.8], [-0.2, 1.2, 1.2], 50],                       // CONGRATULATIONS (low)
     [T.hungry + 0.3, [1.6, 2.7, 15.5], [0.6, 3.8, 0], 52],               // WIDE: the donkey eats in front; the post drops in, sails, wind, the wind changes
     [T.genius - 0.3, [3.5, 2.0, 7.5], [0, 6.4, 0], 50],                 // genius: up at the stopped sails
     [T.whole - 0.1, [1.6, 2.9, 15.5], [0, 4.6, 0], 52],                // WIDE: the house drops on, pushed round
@@ -307,7 +306,6 @@
     [T.brake - 0.2, [5.5, 5.0, 11.5], [0.6, 7.3, 1.6], 46],             // the brake wheel smokes
     [T.bigger - 0.1, [0.3, 1.9, -11.8], [-3.4, 1.5, -4.6], 48],        // bigger sails; too heavy to push (from behind)
     [T.build - 0.1, [1.8, 3.4, 18.5], [0, 5.6, 0], 52],                // WIDE: the tower rises, the cap lands and turns
-    [T.cong3, [1.6, 0.8, 14], [0, 6.5, 0], 56],                       // CONGRATULATIONS (low)
     [T.night - 0.1, [-8.5, 3.4, 15], [0, 7.5, 0], 50],                 // night, the wind from behind
     [T.brain - 0.4, [5.5, 2.5, 11], [0, 9.6, 0], 48],             // huge brain (hero close)
     [T.windmill, [13, 12.2, -9.5], [0, 10.4, -2.6], 40],                // high behind the cap: the fantail, it turns the cap
@@ -441,8 +439,8 @@
       if (t > T.donkey - 1.6) {
         if (t < cS) { const u = k(t, T.donkey - 1.6, cS), x = lerp(-4.6, Math.cos(A0) * DR, u), z = lerp(-1.4, -Math.sin(A0) * DR, u); dpose(x, z, face(Math.cos(A0) * DR + 4.6, -Math.sin(A0) * DR + 1.4), 'Walk', t); }
         else if (t < cE) { const a = A0 + (t - cS) * W0; dpose(Math.cos(a) * DR, -Math.sin(a) * DR, face(-Math.sin(a), -Math.cos(a)), 'Walk', t); }
-        else if (t < T.cong1 + 1.2) dpose(E0.x, E0.z, face(-Math.sin(aE), -Math.cos(aE)), 'Idle_Headlow', t);
-        else if (t < T.eats - 0.15) { const u = k(t, T.cong1 + 1.2, T.eats - 0.15); dpose(lerp(E0.x, EAT.x, u), lerp(E0.z, EAT.z, u), face(EAT.x - E0.x, EAT.z - E0.z), 'Walk', t); }
+        else if (t < T.cong1 + 0.5) dpose(E0.x, E0.z, face(-Math.sin(aE), -Math.cos(aE)), 'Idle_Headlow', t);
+        else if (t < T.eats - 0.1) { const u = k(t, T.cong1 + 0.5, T.eats - 0.1); dpose(lerp(E0.x, EAT.x, u), lerp(E0.z, EAT.z, u), face(EAT.x - E0.x, EAT.z - E0.z), 'Walk', t); }
         else if (t < T.heavy || t > T.final - 0.3) dpose(EAT.x, EAT.z, -90, 'Eating', t);
         else dpose(EAT.x, EAT.z, -90, 'Death', t - T.heavy);
       }
