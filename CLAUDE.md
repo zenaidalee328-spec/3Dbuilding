@@ -25,6 +25,26 @@ Reply to the user in Roman Urdu.
 - No score/tally gimmicks ("House two, hill zero", "HOUSE vs HILL 2:0" badges): the owner hates them, even when they are in a script he gives. Just name each fix plainly.
 - No stock asides in scripts ("Being an absolute genius", "Using your huge brain", "Being smart"): the owner finds them repetitive.
 
+## Mistakes not to repeat (owner feedback, Windmill + Hillside House, 2026-11-23)
+Check every one of these BEFORE showing the owner a film:
+1. **Show it plainly, never a cutaway.** No section/cross-section views of the ground: the owner could not tell what was happening.
+   Show every fix from outside, on the surface, with machines and props doing the work: a drilling rig drilling beside the house, steel
+   cages lowered into the holes, steel bars sliding into the slope row by row, pipes pushed in with water pouring out, wet patches + cracks.
+2. **The camera goes to the thing the words are about.** When the voice says "you cut a ditch" / "a staircase" / "steel bars", that object
+   fills the frame, close enough to read (about 10-20 m away), the camera holding on it while it is built. Never leave it a thin line far away.
+3. **A built thing must be visible.** Don't sink it into the terrain (a channel inside the ground was invisible): raise it above the ground
+   or cut the ground. Check a still of every build beat.
+4. **Camera paths never pass through buildings.** Long moves between far-apart shots are hard cuts. Check a still in the middle of every move.
+5. **Props never stick through the house** (rods, pipes, rigs): check their start and end positions.
+6. **No score/tally gimmicks** ("House two, hill zero", "HOUSE vs HILL 2:0" badges), even when they are in the owner's own script.
+   Name each fix plainly ("This is a crest channel.").
+7. **"Congratulations" at most once, at the very end** (Windmill had 4, then 2; the owner wanted 1).
+8. **No stock asides** ("Being an absolute genius", "Using your huge brain", "Being smart").
+9. **Owner's own script: check the length first** (~3.4 words/s at our speed). Over 70 s: trim it to 55-70 s, keeping his facts and order.
+10. **Background wind quiet:** bed about -38 dB, gusts -15 to -22 dB, so the voice is clear.
+11. **Animals move at a real pace,** facing the way they walk, never sliding or teleporting.
+12. **Before saying "done", look at a contact sheet of stills** (one per beat) and ask: would a viewer understand this frame without the words?
+
 ## Engine (`tools/vh-engine`)
 - `base.js`: renderer + post (DOF, bloom, grade), HDRI, PBR, captions, `B.tag/B.badge/B.counter`, `B.gltf/B.fbx`, `B.run`.
 - `template/`: index.html, render.js, timeline.js, make-audio.js, make-voice.py, vendor (three r160 + addons).

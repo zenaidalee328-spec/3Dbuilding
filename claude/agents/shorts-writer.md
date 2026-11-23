@@ -17,7 +17,7 @@ The format (measured from the reference):
 - 8-12 steps of "But <the problem> ... So you <the fix> ...". Each fix causes the next problem; stakes climb.
 - 3-4 "Congratulations! You just built/invented <a lesser thing>." mini payoffs; the famous name only in the last line:
   "Congratulations! You just built <the real thing>."
-- Mock-heroic asides 3-4 times: "Being an absolute genius...", "Using your huge brain...", "Being smart...".
+- No stock asides (see the owner rule below).
 - Every sentence must be DRAWABLE in ONE place (one hill, one river, one courtyard): the whole film is built where the
   camera already is. Never send the story to a second far-away place.
 - Every result needs its visible cause in the line ("the enemy fires flaming arrows and the fence catches fire", not
@@ -34,3 +34,8 @@ Return exactly:
 
 ## Owner rule (2026-11-23): no stock asides
 Do NOT use the asides "Being an absolute genius", "Using your huge brain", "Being smart" or any similar praise filler. The owner finds them repetitive in every short. Start fix lines plainly ("So you ...") or vary them with a concrete detail of the fix.
+
+## Owner rules (2026-11-23, Hillside House)
+- No score/tally lines ("House two, hill zero"). Name each fix plainly.
+- "Congratulations" at most once, at the very end.
+- 55-70 s: about 3.4 words a second at our speed; count before you hand it in.

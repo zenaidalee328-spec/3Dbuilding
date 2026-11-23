@@ -12,6 +12,8 @@ when the owner asks. Talk to the owner in Roman Urdu.
 | quicksand-pov | rendered v1 | realistic Mixamo character; big text cards removed ("subtitles are enough") |
 | roman-aqueduct | rendered v1 | first "If you... / But... / So you... / Congratulations!" film; music turned down to -32 dB at owner's request |
 | castle | rendered v1 | built after the frame-by-frame study of the reference shorts; one hilltop, slow camera, 4 Mixamo bodies |
+| windmill | rendered v1 | no people; Quaternius CC0 donkey; one "Congratulations" at the end; quieter wind |
+| hillside-house | rendered v1 | owner's script trimmed to 69 s; no score lines; no cutaways (rig, bars, pipes shown plainly) |
 | character-test | test only | a person built in code vs the Mixamo person (owner chose Mixamo) |
 
 Small copies of the renders are in `renders/` (CRF 25). Full-quality renders stay on the PC (`outputs/`).
@@ -26,6 +28,26 @@ Small copies of the renders are in `renders/` (CRF 25). Full-quality renders sta
 - Camera must NOT be sharp: see the camera rules below.
 - Render only when asked, one at a time, through VideoHub (`hub_render`).
 - Save everything to GitHub (this repo) as work goes on.
+
+## Mistakes not to repeat (owner feedback, Windmill + Hillside House, 2026-11-23)
+Check every one of these BEFORE showing the owner a film:
+1. **Show it plainly, never a cutaway.** No section/cross-section views of the ground: the owner could not tell what was happening.
+   Show every fix from outside, on the surface, with machines and props doing the work: a drilling rig drilling beside the house, steel
+   cages lowered into the holes, steel bars sliding into the slope row by row, pipes pushed in with water pouring out, wet patches + cracks.
+2. **The camera goes to the thing the words are about.** When the voice says "you cut a ditch" / "a staircase" / "steel bars", that object
+   fills the frame, close enough to read (about 10-20 m away), the camera holding on it while it is built. Never leave it a thin line far away.
+3. **A built thing must be visible.** Don't sink it into the terrain (a channel inside the ground was invisible): raise it above the ground
+   or cut the ground. Check a still of every build beat.
+4. **Camera paths never pass through buildings.** Long moves between far-apart shots are hard cuts. Check a still in the middle of every move.
+5. **Props never stick through the house** (rods, pipes, rigs): check their start and end positions.
+6. **No score/tally gimmicks** ("House two, hill zero", "HOUSE vs HILL 2:0" badges), even when they are in the owner's own script.
+   Name each fix plainly ("This is a crest channel.").
+7. **"Congratulations" at most once, at the very end** (Windmill had 4, then 2; the owner wanted 1).
+8. **No stock asides** ("Being an absolute genius", "Using your huge brain", "Being smart").
+9. **Owner's own script: check the length first** (~3.4 words/s at our speed). Over 70 s: trim it to 55-70 s, keeping his facts and order.
+10. **Background wind quiet:** bed about -38 dB, gusts -15 to -22 dB, so the voice is clear.
+11. **Animals move at a real pace,** facing the way they walk, never sliding or teleporting.
+12. **Before saying "done", look at a contact sheet of stills** (one per beat) and ask: would a viewer understand this frame without the words?
 
 ## The reference study (4 AlexDiary shorts, analysed frame by frame at 30 fps)
 Full notes: `docs/analysis/reference-shorts-frame-notes.md`. The videos themselves are not in the repo (not ours).

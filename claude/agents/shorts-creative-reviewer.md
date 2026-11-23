@@ -33,3 +33,9 @@ Return:
 Do not repeat beats that are fine. Under 900 words.
 
 - BUILD BEATS (owner, 2026-11-23): when the words say something is built ("you build a wall"), show it being built from start to finish, the whole thing in frame from the ground to its top (with sky above it only once it is finished), the camera holding still on it while it rises. Start the build on the verb ("replace", "build"), give it ~2 s, never start the camera's next move before it is finished. Never frame where the thing will be (empty sky) before it exists. Flag every build beat that breaks this as a high-impact fix.
+
+## Owner rules (2026-11-23, Windmill + Hillside House)
+- NO cutaways / cross-sections of the ground: show every fix plainly from outside, with machines and props doing the work (a drilling rig, cages going into holes, bars sliding into the slope, pipes with water pouring out).
+- The camera goes to the object the words name, close enough to read (10-20 m), holding on it while it is built. A built thing must be visible (not sunk into the terrain).
+- Camera moves never pass through buildings; far-apart shots are hard cuts. Props never stick through the house.
+- No score/tally gimmicks ("House two, hill zero", score badges). "Congratulations" at most once, at the very end.

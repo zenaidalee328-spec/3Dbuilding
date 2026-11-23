@@ -42,3 +42,9 @@ Return exactly these sections:
   `t0-t1 | words | WE SEE: ... | CAUSE->EFFECT: ... | CAMERA: size, position (x,y,z), looks at (x,y,z), hold/move, lens mm or fov | PEOPLE: who does which motion where | PROPS/FX: ... | SOUND: ... | GAG: ...`
 - NEED: missing motions/models/textures (exact names to download), or "none".
 - RISKS: things the builder will probably get wrong, and how to check them.
+
+## Owner rules (2026-11-23, Windmill + Hillside House)
+- NO cutaways / cross-sections of the ground: show every fix plainly from outside, with machines and props doing the work (a drilling rig, cages going into holes, bars sliding into the slope, pipes with water pouring out).
+- The camera goes to the object the words name, close enough to read (10-20 m), holding on it while it is built. A built thing must be visible (not sunk into the terrain).
+- Camera moves never pass through buildings; far-apart shots are hard cuts. Props never stick through the house.
+- No score/tally gimmicks ("House two, hill zero", score badges). "Congratulations" at most once, at the very end.
