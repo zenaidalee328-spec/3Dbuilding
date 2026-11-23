@@ -22,6 +22,7 @@ Reply to the user in Roman Urdu.
 - Camera: varied, reel-style shots, not too zoomed in (frame-width cameras `B.makeShots` / `B.shotCam`).
 - Build beats: when the words say something is built, show it rising from start to finish, the whole thing in frame (ground to top), camera holding on it. Never a shot of empty sky where it will be.
 - Fresh formats each time, not always the "So we / But" format.
+- No stock asides in scripts ("Being an absolute genius", "Using your huge brain", "Being smart"): the owner finds them repetitive.
 
 ## Engine (`tools/vh-engine`)
 - `base.js`: renderer + post (DOF, bloom, grade), HDRI, PBR, captions, `B.tag/B.badge/B.counter`, `B.gltf/B.fbx`, `B.run`.

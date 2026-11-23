@@ -10,13 +10,13 @@
     circles: c('circle', 'circles'), flour: c('circle', 'flour'), cong1: L0('cong1'), eats: c('hungry', 'eats'), hungry: L0('hungry'),
     post0: L0('post'), hammer: c('post', 'hammer'), post: c('post', 'post'), nail: c('post', 'nail'), sails: c('post', 'sails'),
     wind: c('free', 'wind'), shift: L0('shift'), changes: c('shift', 'changes'), stop: c('shift', 'stop'),
-    genius: c('tailpole', 'genius'), whole: c('tailpole', 'whole'), house: c('tailpole', 'house'), push: c('tailpole', 'push'), pole: c('tailpole', 'pole'),
+    genius: L0('tailpole'), whole: c('tailpole', 'whole'), house: c('tailpole', 'house'), push: c('tailpole', 'push'), pole: c('tailpole', 'pole'),
     cong2: L0('cong2'), storm: c('storm', 'storm'), wildly: c('storm', 'wildly'), miller: c('storm', 'miller'), vanish: c('storm', 'vanishes'),
     brake0: L0('brake'), clamp: c('brake', 'clamp'), brake: c('brake', 'brake'), rubs: c('brake', 'rubs'), smokes: c('brake', 'smokes'),
     heavy0: L0('heavy'), bigger: c('heavy', 'bigger'), heavy: c('heavy', 'heavy'),
     tower0: L0('tower'), build: c('tower', 'build'), tower: c('tower', 'tower'), cap: c('tower', 'cap'), turns: c('tower', 'turns'),
     cong3: L0('cong3'), night: c('tail', 'night'), swings: c('tail', 'swings'), rips: c('tail', 'rips'),
-    brain: c('fan', 'brain'), stick: c('fan', 'stick'), windmill: c('fan', 'windmill'), fan0: L0('fan'),
+    brain: L0('fan'), stick: c('fan', 'stick'), windmill: c('fan', 'windmill'), fan0: L0('fan'),
     shifts: c('fan2', 'shifts'), spins: c('fan2', 'spins'), cranks: c('fan2', 'cranks'), itself: c('fan2', 'itself'),
     final: L0('final'), edmund: c('final', 'edmund'),
   };
@@ -114,6 +114,12 @@
   const base0 = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 1.0, 0.25, 30), STONE); base0.position.y = 0.12; dmill.add(base0);
   const pile = new THREE.Mesh(new THREE.ConeGeometry(0.45, 0.3, 20), new THREE.MeshStandardMaterial({ color: 0xf4efe6, roughness: 1 })); pile.position.set(1.05, 0.15, 0.2); dmill.add(pile);
   sh(dmill);
+  const sheaves = new THREE.Group(); scene.add(sheaves); sheaves.position.set(-2.95, 0, 3.0);
+  { const SM = new THREE.MeshStandardMaterial({ color: 0xd8b060, roughness: 0.9, envMapIntensity: 0.4 }), TM = new THREE.MeshStandardMaterial({ color: 0x9a7a3c, roughness: 0.9 });
+    for (let i = 0; i < 7; i++) { const b = new THREE.Group(), a = i / 7 * 6.28, r = i ? 0.45 : 0; b.position.set(Math.cos(a) * r, 0, Math.sin(a) * r); b.rotation.set((hash(i) - 0.5) * 0.25, a, (hash(i * 3) - 0.5) * 0.25);
+      const st = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.2, 0.9, 10), SM); st.position.y = 0.45; const ears = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.45, 10), SM); ears.position.y = 1.05;
+      const tie = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.03, 6, 14), TM); tie.rotation.x = Math.PI / 2; tie.position.y = 0.6; b.add(st, ears, tie); sheaves.add(b); } }
+  sh(sheaves);
   // ---------- 3) the post, the post mill house (with tail pole + brake wheel), sails
   const POSTH = 8.2, HUBY = 7.7;
   const postG = new THREE.Group(); scene.add(postG);
@@ -362,9 +368,10 @@
     // 2) donkey mill: grows on "huge", turns while the donkey circles, a flour pile grows; sinks when the post comes
     const dg = eout(k(t, T.huge - 0.4, T.huge + 0.2)), dsink = eio(k(t, T.post0 - 0.1, T.hammer + 0.2));
     dmill.visible = t > T.huge - 0.45 && dsink < 0.99; dmill.scale.setScalar(Math.max(0.01, dg)); dmill.position.y = -2.6 * dsink;
-    const circ = k(t, T.donkey + 0.2, T.cong1 + 0.4); catillus.rotation.y = circ * Math.PI * 2 * 1.6;
+    catillus.rotation.y = 2.85 + clamp(t - T.donkey - 0.1, 0, T.cong1 + 0.3 - T.donkey - 0.1) * 0.58;
     pile.scale.setScalar(Math.max(0.01, sm(k(t, T.flour - 0.2, T.cong1 + 0.8)) * 1.3));
     if (t > T.flour - 0.2 && t < T.cong1 + 0.6) for (let i = 0; i < 3; i++) dust(t, Math.floor(t * 4) / 4 - i * 0.08, V(0.95, 0.5, 0.2), 3, 0.35, 0xf6f2ea, 0.6, 0.3);
+    sheaves.visible = t > T.huge - 0.5; sheaves.children.forEach((b, i) => { b.visible = !(i % 2 && t > T.eats + 0.4 + i * 0.25); });
     // 3) the post drops into the hill; fixed sails pop on; then the house drops on and is pushed round
     const pd = eout(k(t, T.hammer - 0.1, T.post + 0.1)), psink = eio(k(t, T.tower0, T.build + 0.1));
     postG.visible = t > T.hammer - 0.15 && psink < 0.99; postG.position.y = (1 - pd) * 9 - 12 * psink;
@@ -428,14 +435,16 @@
       const cheerAt = (t0, t1, n) => { if (t > t0 && t < t1) crowd.slice(0, n).forEach((P, i) => pose(P, spots[i][0], 0, spots[i][1], spots[i][2], 'cheer', t - t0 + i * 0.4)); };
       cheerAt(T.cong3 - 0.3, T.night - 0.3, 4); cheerAt(T.final - 0.3, DUR + 1, 4);
       // the donkey: walks in, circles, dizzy, eats the wheat, lies down when the house is too heavy, cheers at the end
-      if (t > T.donkey - 0.4 && t < T.post0 + 99) {
-        if (t < T.donkey + 0.4) { const u = k(t, T.donkey - 0.4, T.donkey + 0.4); dpose(lerp(5, 2.4, u), lerp(5, 0, u), 200, 'Walk', t); }
-        else if (t < T.cong1 + 0.4) { const a = (t - T.donkey - 0.4) * 1.74; dpose(Math.cos(a) * 2.4, -Math.sin(a) * 2.4, rad2(-a) + 180, 'Walk', t * 1.2); }
-        else if (t < T.hungry) { const a = (T.cong1 + 0.4 - T.donkey - 0.4) * 1.74; dpose(Math.cos(a) * 2.4, -Math.sin(a) * 2.4, rad2(-a) + 180, 'Idle_Headlow', t); }
-        else if (t < T.eats - 0.1) { const u = k(t, T.hungry, T.eats - 0.1); dpose(lerp(-0.74, 4.4, u), lerp(2.28, 9.4, u), 30, 'Walk', t * 1.3); }
-        else if (t < T.heavy) dpose(4.4, 9.4, 20, 'Eating', t);
-        else if (t < T.tower0 + 0.2) { const u = k(t, T.heavy - 0.2, T.heavy + 0.3); dpose(lerp(4.4, -1.6, u), lerp(9.4, -9.2, u), 160, u < 1 ? 'Walk' : 'Death', t - T.heavy - 0.3); }
-        else if (t > T.final - 0.3) dpose(2.4, 5.6, 200, 'Idle_2', t);
+      // the donkey walks at a real walking pace (~1.4 m/s) and always faces where it goes (the model looks along +z)
+      const face = (vx, vz) => rad2(Math.atan2(vx, vz)), DR = 2.4, W0 = 0.58, A0 = 2.85;
+      const cS = T.donkey + 0.1, cE = T.cong1 + 0.3, aE = A0 + (cE - cS) * W0, E0 = V(Math.cos(aE) * DR, 0, -Math.sin(aE) * DR), EAT = V(-1.85, 0, 3.1);
+      if (t > T.donkey - 1.6) {
+        if (t < cS) { const u = k(t, T.donkey - 1.6, cS), x = lerp(-4.6, Math.cos(A0) * DR, u), z = lerp(-1.4, -Math.sin(A0) * DR, u); dpose(x, z, face(Math.cos(A0) * DR + 4.6, -Math.sin(A0) * DR + 1.4), 'Walk', t); }
+        else if (t < cE) { const a = A0 + (t - cS) * W0; dpose(Math.cos(a) * DR, -Math.sin(a) * DR, face(-Math.sin(a), -Math.cos(a)), 'Walk', t); }
+        else if (t < T.cong1 + 1.2) dpose(E0.x, E0.z, face(-Math.sin(aE), -Math.cos(aE)), 'Idle_Headlow', t);
+        else if (t < T.eats - 0.15) { const u = k(t, T.cong1 + 1.2, T.eats - 0.15); dpose(lerp(E0.x, EAT.x, u), lerp(E0.z, EAT.z, u), face(EAT.x - E0.x, EAT.z - E0.z), 'Walk', t); }
+        else if (t < T.heavy || t > T.final - 0.3) dpose(EAT.x, EAT.z, -90, 'Eating', t);
+        else dpose(EAT.x, EAT.z, -90, 'Death', t - T.heavy);
       }
     }
     for (let i = sN; i < SPR.length; i++) SPR[i].visible = false;
@@ -448,7 +457,7 @@
     g.beginPath(); for (let i = 0; i < 8; i++) { const r = i % 2 ? 12 : 46, an = i * Math.PI / 4; g.lineTo(Math.cos(an) * r, Math.sin(an) * r); } g.closePath(); g.fill(); g.restore(); }
   function overlay(t) {
     B.vignette(0.12);
-    sparkle(t, T.genius - 0.1, V(0.9, 8.9, 0.6)); sparkle(t, T.brain - 0.1, V(1.4, 12.6, 0.4));
+    
     const night = sm(k(t, T.night - 0.6, T.night + 0.2)) * (1 - sm(k(t, T.final - 0.3, T.final + 0.5))); B.tint(night * 0.35, '#1a2a6a', 'multiply');
     B.flash(t, [T.post, T.house], '#fff6e6', 0.12, 0.25);
   }

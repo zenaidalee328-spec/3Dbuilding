@@ -31,3 +31,6 @@ Return exactly:
 2. SCRIPT: the lines as `id | text` (short ids like hook, fence, wall, cong1...).
 3. GAGS: line id -> the unspoken visual joke.
 4. ONE PLACE: the single location everything happens in, in one sentence.
+
+## Owner rule (2026-11-23): no stock asides
+Do NOT use the asides "Being an absolute genius", "Using your huge brain", "Being smart" or any similar praise filler. The owner finds them repetitive in every short. Start fix lines plainly ("So you ...") or vary them with a concrete detail of the fix.
