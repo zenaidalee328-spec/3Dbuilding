@@ -18,7 +18,7 @@
     end0: L0('end'), first: c('end', 'first'),
   };
   // the cutaway (section through the hill at x = 3.6) is shown in these windows (each starts/ends on a hard cut)
-  const SECW = [[T.creep0 - 0.05, T.week - 0.4], [T.stitch - 0.1, T.spray - 0.1], [T.drain0 - 0.1, T.rock0 - 0.1]];
+  const SECW = [[T.creep0 - 0.05, T.week - 0.4], [T.drain0 - 0.1, T.rock0 - 0.1]];
   const secOn = t => SECW.some(([a, b]) => t >= a && t < b);
 
   // ---------- the slope: falls toward +z (the street), a plateau on top (z < -26), the street flat below (z > 14)
@@ -182,6 +182,10 @@
     const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 6, 8), STEEL); bar.rotation.x = Math.PI / 2; bar.position.z = 3; gq.add(bar);
     const grout = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 6, 12), new THREE.MeshStandardMaterial({ color: 0xa8a49c, roughness: 0.9, transparent: true, opacity: 0.85 })); grout.rotation.x = Math.PI / 2; grout.position.z = 3; gq.add(grout); gq.userData.grout = grout;
     gq.position.copy(P0); gq.lookAt(P0.clone().add(NAILD)); scene.add(gq); return { gq, P0 }; });
+  const RODS = []; { const rg = new THREE.CylinderGeometry(0.07, 0.07, 6, 10); rg.rotateX(Math.PI / 2); rg.translate(0, 0, 3);
+    const RM = new THREE.MeshStandardMaterial({ color: 0xb0b6bc, metalness: 0.8, roughness: 0.3, envMapIntensity: 0.8 });
+    NAILZ.slice(1).reverse().forEach((z, r) => { for (let x = -8, xi = 0; x <= 8.1; x += 2, xi++) { const P0 = V(x, hAt(x, z) + 0.05, z), m = new THREE.Mesh(rg, RM); m.castShadow = true;
+      m.position.copy(P0); m.lookAt(P0.clone().add(NAILD)); scene.add(m); RODS.push({ m, P0, t0: 0.1 + r * 0.4 + xi * 0.035 }); } }); }
   const SKX0 = -9.5, SKX1 = 9.5, SKZ0 = -12.2, SKZ1 = -4.2;
   const skin = (() => { const gq = new THREE.PlaneGeometry(SKX1 - SKX0, SKZ1 - SKZ0, 80, 40); gq.rotateX(-Math.PI / 2); const p = gq.attributes.position;
     for (let i = 0; i < p.count; i++) { const x = p.getX(i) + (SKX0 + SKX1) / 2, z = p.getZ(i) + (SKZ0 + SKZ1) / 2; p.setXYZ(i, x, hAt(x, z) + 0.1 + 0.03 * hash(i), z); }
@@ -323,8 +327,7 @@
     [T.step - 0.3, [18.5, 1.2, 11], [14.5, 0.2, -1], 48],                     // close on the steps: the water slows step by step
     [T.creep0 - 0.05, [31, 1.0, -0.3], [SX, -2.2, -0.3], 48, 'cut'],            // CUTAWAY: soil creeps, the drill goes down to rock, piles
     [T.week - 0.4, [-17, 13, 3], [0, 3.5, -9], 50, 'cut'],                      // a week of rain: the crack across the slope
-    [T.stitch - 0.1, [27, 4.0, -7.6], [SX, 0.6, -8.2], 48, 'cut'],           // CUTAWAY: soil nails driven in
-    [T.spray - 0.1, [-16, 13, 2], [0, 3.5, -8.5], 50, 'cut'],                    // the concrete skin spreads over the slope
+    [T.stitch - 0.25, [-15.5, 12.5, 2.5], [0, 3.6, -7.8], 48, 'cut'],      // close on the slope: the steel bars go in row by row, then the concrete is sprayed over
     [T.drain0 - 0.1, [27, 4.0, -7.6], [SX, 0.6, -8.2], 48, 'cut'],           // CUTAWAY: water builds up, the drains go in
     [T.rock0 - 0.1, [11, 14, -7], [0.5, 9.5, -24], 48, 'cut'],                // the loose rock on the edge above
     [T.stretch - 0.3, [16, 14.5, -4], [0, 8, -19.5], 50],                       // the net goes up, the rock hits it
@@ -414,8 +417,10 @@
     // 5) the crack (week of rain) + nails driven in + the skin sprayed on (top to bottom)
     const crk = eout(k(t, T.slide - 0.2, T.slide + 0.4)); crack.material.opacity = SEC || t > T.spray + 1.2 ? 0 : 0.9 * crk; crack.visible = crack.material.opacity > 0.01;
     if (t > T.slide - 0.2 && t < T.slide + 1.2 && !SEC) for (let x = -8; x <= 8; x += 2) dust(t, T.slide - 0.2 + x * 0.01, V(x, hAt(x, -12.6), -12.6), 3, 1.0, 0x8a6a46, 1.0, 1.2);
-    NAILS.forEach((n, i) => { const u = eio(k(t, T.stitch + 0.1 + i * 0.18, T.bars + 0.4 + i * 0.12)); n.gq.visible = (SEC && t > T.stitch - 0.2) || t > T.spray; n.gq.position.copy(n.P0).addScaledVector(NAILD, -6 + 6 * u);
+    NAILS.forEach((n, i) => { const u = 1; n.gq.visible = SEC && t > T.stitch; n.gq.position.copy(n.P0).addScaledVector(NAILD, -6 + 6 * u);
       n.gq.userData.grout.visible = t > T.bars + 0.4; });
+    RODS.forEach(r => { const a = T.stitch + r.t0, u = eio(k(t, a, a + 0.45)); r.m.visible = t > T.stitch - 0.3 && t < T.z5 + 0.4 && !SEC; r.m.position.copy(r.P0).addScaledVector(NAILD, -3 * (1 - u) - 0.15 * u + 0.15);
+      if (u > 0.05 && u < 1 && r.m.visible) puff(r.P0.clone().add(V(0, 0.25, 0.1)), 0xb89a76, 0.5, 0.6 * (1 - u)); });
     const skU = eio(k(t, T.spray - 0.05, T.z5 - 0.1)), skN = skin.geometry.index.count; skin.visible = skU > 0.01; skin.geometry.setDrawRange(0, Math.floor(skU * skN / 6) * 6);
     if (skinGrass) skinGrass.visible = skU < 0.5;
     heads.visible = skU > 0.95; skinStrip.visible = SEC && t > T.drain0 - 0.2;

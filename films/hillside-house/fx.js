@@ -9,7 +9,7 @@ module.exports = (TL, c) => {
     ['water_fill', c('stair', 'step'), -16, 3],
     ['soft_whoosh', c('creep', 'creeps'), -16], ...[0, 1, 2, 3, 4, 5].map(i => ['metal_clank', c('creep', 'drill') + i * 0.22, -17]), ['concrete_thud', c('creep', 'steel') + 0.3, -9],
     ['shower', c('slide', 'week'), -11, 6], ['thud', c('slide', 'slide'), -4], ['concrete_thud', c('slide', 'slide') + 0.1, -7],
-    ...[0, 1, 2, 3, 4].map(i => ['metal_clank', c('slide', 'stitch') + 0.2 + i * 0.2, -13]), ['shower', c('slide', 'spray'), -17, 2],
+    ...[0, 1, 2, 3, 4].map(i => ['metal_clank', c('slide', 'stitch') + 0.45 + i * 0.35, -11]), ['shower', c('slide', 'spray'), -17, 2],
     ['water_fill', c('drain', 'builds'), -15, 2.5], ...[0, 1, 2].map(i => ['pipe_clunk', c('drain', 'push') + i * 0.2, -11]), ['water_fill', c('drain', 'drain'), -12, 2.5],
     ...[0, 1, 2].map(i => ['thud', c('rock', 'rolls') + 0.5 + i * 0.6, -13]), ...[0, 1, 2, 3].map(i => ['metal_clank', c('rock', 'stretch') + i * 0.25, -14]),
     ['thud', c('rock', 'never'), -4], ['metal_clank', c('rock', 'never') + 0.05, -7], ['birds', c('rock', 'knows'), -16, 3],
