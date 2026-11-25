@@ -35,7 +35,16 @@ if cams:
     for i in range(1, len(cams)):
         a = cams[i - 1]; d = math.dist(a[:3], a[3:6]); fw = np.array(a[3:6], float) - np.array(a[:3], float); fw /= np.linalg.norm(fw)
         s = proj(cams[i], list(np.array(a[:3], float) + fw * d)); sp.append(math.hypot(*s) if s else 999)
-    sp = np.array(sp); acc = np.abs(np.diff(np.convolve(sp, np.ones(3) / 3, 'same')))
+    sp = np.array(sp)
+    # A hard cut is a one-frame jump: huge on that frame, quiet on both sides of it. The reference films each use
+    # 0-1 of them as a punchline (reference.json facts.hard_cuts), and a flow reading across a cut measures
+    # nothing real, so cuts are counted on their own and zeroed out of the speed and acceleration numbers.
+    # Zeroed rather than dropped, so the move times below still line up with the film's clock.
+    cuts = [i for i in range(len(sp)) if sp[i] > 150
+            and max(sp[i - 1] if i else 0.0, sp[i + 1] if i + 1 < len(sp) else 0.0) < sp[i] / 5]
+    out['hard_cuts'] = len(cuts); out['hard_cut_times_s'] = [round(i / FPS, 2) for i in cuts]
+    for i in cuts: sp[i] = 0.0
+    acc = np.abs(np.diff(np.convolve(sp, np.ones(3) / 3, 'same')))
     moves, i = [], 0
     while i < len(sp):
         if sp[i] > 15:

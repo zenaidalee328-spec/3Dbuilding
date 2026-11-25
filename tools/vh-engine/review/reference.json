@@ -11,6 +11,7 @@
   "accel_p99": [0, 9, ""],
   "still_or_slow_pct": [65, 100, " %"],
   "fast_moves": [6, 14, ""],
+  "hard_cuts": [0, 1, ""],
   "loudness_LUFS": [-11, -6, ""]
  },
  "facts": {

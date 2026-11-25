@@ -48,8 +48,15 @@
     for (let i = 0; i < 9; i++) { const a = i / 9 * 6.283 + 0.3, r = 180 + 120 * hash(i * 7), h = 40 + 50 * hash(i * 2); const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 24), mm); m.position.set(Math.cos(a) * 820, h / 2 - 8, Math.sin(a) * 820); scene.add(m); } }
   const sun = new THREE.DirectionalLight(0xffd8aa, 3.3); sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096);
   sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.03; scene.add(sun, sun.target);
-  const hemi = new THREE.HemisphereLight(0xc4d8ff, 0x5a5a38, 0.38); scene.add(hemi);
+  const hemi = new THREE.HemisphereLight(0xc4d8ff, 0x5a5a38, 0.52); scene.add(hemi);   // round 3: lifts shadow areas
   const fill = new THREE.DirectionalLight(0xfff0e0, 0.3); fill.position.set(-30, 25, 60); scene.add(fill);   // front fill: faces coming up the hill are not black
+  // round 3: the sun sits at +x +z, so every -z face was nearly black - the burning fence, and the wall behind the
+  // hero in the idea and Congratulations shots, all of which the camera looks at from -z. A soft warm fill from
+  // behind the camera opens them up without touching the sun's shadows.
+  // The sun sits low (19 deg) at +x +z, so a 4.9 m fence throws a ~14 m shadow over exactly the ground the camera
+  // and the hero stand on: the whole fence beat was rendering at dusk. This fill carries the shadow side. It is
+  // strong because it is only ever seen where the sun is blocked; lit faces already have the sun's 3.3 on them.
+  const fillZ = new THREE.DirectionalLight(0xffe6cc, 1.0); fillZ.position.set(14, 22, -40); scene.add(fillZ);
 
   // grey castle stone: blocks in courses (made here), with the brick's bumps for relief
   const ASH = B.procTex(512, (u, v, i, j) => { const rows = 6, row = Math.floor(v * rows), off = row % 2 ? 0.5 / 3 : 0, cu = (u + off) * 3, col = Math.floor(cu);
@@ -187,13 +194,20 @@
       for (let i = 0; i < p.count; i++) { const y = p.getY(i) / 0.36; p.setX(i, p.getX(i) * (1 - y * 0.9)); p.setZ(i, y * y * 0.08); cl.push(0.35 + 0.65 * y, 0.35 + 0.65 * y, 0.35 + 0.65 * y); }
       g.setAttribute('color', new THREE.Float32BufferAttribute(cl, 3)); g.computeVertexNormals(); return g; })();
     const GM = new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: 0.9 }), M = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), cc = new THREE.Color();
-    const ok = (x, z) => { const d = sq(x, z); return d > 14.4 && !(d > M0 - 0.6 && d < M1 + 0.6) && !(Math.abs(x) < 2.6 && z > HW && z < M1 + 1); };
+    // round 3: the hilltop itself used to be bare dirt (nothing was planted inside d 14.4), so every shot on top
+    // had an empty beige bottom half. The reference always keeps grass and flowers in the frame, so the top is
+    // planted too now, minus the wall footprint (d 10.8-13.4) and the pad the keep comes up through.
+    const onTop = (x, z) => sq(x, z) < 10.8 && !(Math.abs(x) < 4.8 && Math.abs(z + 1) < 4.8);
+    const ok = (x, z) => { const d = sq(x, z); if (d < 14.4) return onTop(x, z);
+      return !(d > M0 - 0.6 && d < M1 + 0.6) && !(Math.abs(x) < 2.6 && z > HW && z < M1 + 1); };
     const put = (geo, mat, n, rmin, rmax, seed, sc, col) => { const im = new THREE.InstancedMesh(geo, mat, n); let c = 0;
       for (let i = 0; c < n && i < n * 4; i++) { const a = hash(seed + i * 1.37) * 6.283, r = rmin + (rmax - rmin) * Math.pow(hash(seed + i * 2.11), 1.5), x = Math.cos(a) * r, z = Math.sin(a) * r; if (!ok(x, z)) continue;
         q.setFromEuler(e.set((hash(i * 3) - 0.5) * 0.5, hash(i * 5) * 6.28, (hash(i * 7) - 0.5) * 0.5)); const k2 = sc(i); M.compose(V(x, hAt(x, z), z), q, V(k2, k2 * (0.7 + hash(i * 11) * 0.9), k2)); im.setMatrixAt(c, M);
         if (col) im.setColorAt(c, col(i, cc)); c++; }
       im.count = c; im.receiveShadow = true; im.frustumCulled = false; scene.add(im); return im; };
     put(blade, GM, 200000, 13, 60, 11, () => 1.1, (i, c) => c.setHSL(0.22 + 0.06 * hash(i * 13), 0.55, 0.32 + 0.12 * hash(i * 17)));
+    // the hilltop: shorter, slightly drier grass than the meadow outside, so the fort still reads as trodden ground
+    put(blade, GM, 60000, 0, 11, 53, () => 0.8, (i, c) => c.setHSL(0.21 + 0.05 * hash(i * 13), 0.42, 0.33 + 0.1 * hash(i * 17)));
     put(blade, GM, 80000, 55, 140, 77, () => 1.8, (i, c) => c.setHSL(0.22 + 0.05 * hash(i * 13), 0.5, 0.32 + 0.1 * hash(i * 17)));
     const FL = [0xffffff, 0xfff1a8, 0xffc8e0, 0xffffff];
     put(new THREE.IcosahedronGeometry(0.04, 1), new THREE.MeshStandardMaterial({ roughness: 0.6 }), 7000, 15, 55, 33, () => 1, (i, c) => c.set(FL[i % 4])).position.y = 0.34;
@@ -278,12 +292,16 @@
   const FX0 = 3, FZ = HW - 1.3;
   add(T.fence0 + 0.1, T.cong1 + 2.4, t => {
     if (t < T.fence + 0.3) { const u = k(t, T.fence0 + 0.1, T.fence + 0.3); return [lerp(2.6, FX0, u), TOPY, lerp(2.2, FZ, u), 0]; }
-    const u = eio(k(t, T.fire - 0.3, T.genius - 0.5)), turn = eio(k(t, T.genius - 0.7, T.genius - 0.3)); return [FX0, TOPY, lerp(FZ, 3.2, u), 160 + 200 * turn]; },
+    // the idea camera now sits on the -z side (round 3), so he turns only the last 20 deg to face it instead of
+    // swinging 200 deg round to the old +z camera.
+    const u = eio(k(t, T.fire - 0.3, T.genius - 0.5)), turn = eio(k(t, T.genius - 0.7, T.genius - 0.3)); return [FX0, TOPY, lerp(FZ, 3.2, u), 160 + 20 * turn]; },
   t => t < T.fence + 0.3 ? [['run', t * 1.3, 1]] : t < T.fire - 0.3 ? [['push', t, 1]] : t < T.genius - 0.5 ? [['scared', t, 1]] : t < T.cong1 - 0.1 ? [['think', t - T.genius + 0.5, 1]] : [['cheer', t - T.cong1, 1]], HERO);
   // 3) the fort: you cheer on the wall, friends too (only once the wall is up: nobody floats)
   const WUP = T.wall + 0.4;
-  add(WUP, T.ladders, on(-0.5, WY, -HW + 0.6, 0), t => [['cheer', t - T.cong1, 1]], ally(5));
-  [[-3.6, 1], [2.4, 2]].forEach(([x, j]) => add(WUP, T.top + 0.3, on(x, WY, -HW + 0.6, 0), t => [['cheer', t - T.cong1 + j * 0.6, 1]], ally(j)));
+  // round 3: they cheer on the +z wall, the one the Congratulations shot looks at, facing the camera (180).
+  // They used to stand on the -z wall, which the new low shot has behind the lens.
+  add(WUP, T.ladders, on(-0.5, WY, HW - 0.6, 180), t => [['cheer', t - T.cong1, 1]], ally(5));
+  [[-3.6, 1], [2.4, 2]].forEach(([x, j]) => add(WUP, T.top + 0.3, on(x, WY, HW - 0.6, 180), t => [['cheer', t - T.cong1 + j * 0.6, 1]], ally(j)));
   // 4) ladders: three climbers
   [-7, -1.2, 6].forEach((x, i) => add(T.ladders - 0.2, T.dig + 0.2, t => { const u = k(t, T.ladders + 0.2 + i * 0.25, T.top + 0.4); return [x, TOPY + u * 6.2, HW + 2.0 - u * 0.9, 180]; },
     loop('climb', i * 0.5, 1.1), FOE));
@@ -356,9 +374,16 @@
   // round 2: fewer, closer shots (no 50 m flights), no shot inside a wall, grill + drawbridge in one 3/4 shot
   const SHOTS = [
     [0.0, [3.6, Y + 1.8, -3.5], [1.2, Y + 0.3, 8], 46],                  // asleep by the fire; torches on the slope behind
-    [T.fence + 0.4, [8, Y + 2.4, 0.5], [2.5, Y + 2.4, HW], 46],                // you build the fence; torches + fire arrows fly over it
-    [T.genius - 0.6, [3.8, Y + 1.9, 9.6], [2.2, Y + 2.3, -4], 50],       // idea in front, the back (sunlit) wall rises behind him
-    [T.cong1 + 0.9, [3.8, Y + 1.9, 9.6], [2.2, Y + 2.3, -4], 50],           // hold through "Congratulations": the cheering on the wall
+    // round 3: this sat 11 m off the fence aiming level at it, so the fence filled the middle, the pale horizon was
+    // hidden behind it and the frame was half deep-zenith sky over ground in the fence's own shadow (mean 41/255).
+    // Back to the middle of the hilltop (inside d 7, where clearance stops lifting the camera over the wall line)
+    // and aiming slightly down: lit grass in front, the fence across the middle third, low pale sky above.
+    [T.fence + 0.4, [7, Y + 2.6, -6.5], [2.6, Y + 1.3, 9], 46],                // you build the fence; torches + fire arrows fly over it
+    // round 3: the idea beat used to sit on the far side of the hilltop looking back, so the camera had to swing
+    // 148 deg in 1.6 s (peak 269 px/f, the "too sharp" feeling). It now backs off and keeps looking the same way
+    // as the fire shot: a 10 deg turn over 6 m. The wall still rises behind the hero, the reference way.
+    [T.genius - 0.6, [5, Y + 1.6, -5], [2.4, Y + 2.2, 4], 50],            // the idea, hero framed against the rising wall
+    [T.cong1 + 0.9, [8, Y + 0.3, -9], [2.4, Y + 5.5, 3], 50],             // CONGRATULATIONS 1: low, looking up, hero small / wall big
     [T.ladders - 0.15, [-12, Y + 1.8, 24], [-2, Y + 3, HW + 3], 44, 'cut'],   // hard cut on "But": outside, the ladders
     [T.short - 0.4, [-11, Y + 1.4, 26], [-6, Y + 1.5, 16.5], 42],         // the ladder stops short of the wall, slides in
     [T.archers - 0.1, [5.4, hAt(5.4, 37.2) + 1.9, 37.2], [1, WY - 0.5, HW + 1], 44], // over an archer's shoulder
@@ -373,7 +398,9 @@
     [T.door - 0.2, [4.5, Y + 2.0, 8.8], [0, Y + 6, 2.5], 55],             // the keep rises, its door high (inside, low)
     [T.castle, [16, Y + 10, 52], [0, Y + 5, 0], 42],               // rising a little on the castle
   ].map(([t, p, q, f, cut]) => ({ t, p: V(...p), q: V(...q), f, cut: !!cut }));
-  const ease = x => 0.5 - 0.5 * Math.cos(Math.PI * clamp(x));
+  // Quintic smootherstep: speed AND acceleration are zero at both ends, so a move never jerks as it starts or
+  // stops. The raised cosine this replaces stepped the acceleration at the ends, which was accel_p99 12.6 (max 9).
+  const ease = x => { const u = clamp(x); return u * u * u * (u * (u * 6 - 15) + 10); };
   // what stands where at time t (the camera must stay out of it)
   const WALL0 = c('wall', 'replace'), wuAt = t => k(t, WALL0, T.wall + 0.35), goneAt = t => sm(k(t, T.wood, T.wood + 0.6)), kuAt = t => eout(k(t, T.tower - 0.5, T.tower + 0.5));
   function clearance(p, t) {
@@ -391,7 +418,13 @@
     const push = (s, u) => ({ p: s.p.clone().lerp(s.q, 0.03 * u), q: s.q.clone(), f: s.f });
     if (!b) { const R = push(a, ease(k(t, a.t, DUR))); clearance(R.p, t); return R; }
     if (b.cut) { const R = push(a, ease(k(t, a.t, b.t))); clearance(R.p, t); return R; }   // a hard cut: hold, then jump on b.t
-    const dist = a.p.distanceTo(b.p), M = clamp(1.3 + dist / 18, 1.5, 2.8), gap = b.t - a.t, mv = Math.min(M, gap * 0.75), ts = b.t - mv;
+    // How long a move takes: the distance AND the turn decide it. The turn is what the eye actually sees, so a
+    // move that swings the aim needs the time a move that only slides does not (42 deg of turn buys as much time
+    // as 18 m of travel). Reference moves last 1.2-2.7 s, so that stays the range.
+    const dist = a.p.distanceTo(b.p);
+    const dirA = a.q.clone().sub(a.p).normalize(), dirB = b.q.clone().sub(b.p).normalize();
+    const turn = Math.acos(clamp(dirA.dot(dirB), -1, 1)) * 180 / Math.PI;
+    const M = clamp(Math.max(1.3 + dist / 18, 1.1 + turn / 42), 1.5, 2.8), gap = b.t - a.t, mv = Math.min(M, gap * 0.75), ts = b.t - mv;
     const A = push(a, ease(k(t, a.t, ts)));
     if (t < ts) { clearance(A.p, t); return A; }
     const u = ease(k(t, ts, b.t)), Bv = push(b, 0);
@@ -493,14 +526,18 @@
   // ---------- overlay: the idea sparkle, the fire glow, a light vignette
   function sparkle(t, t0, head) { const a = eout(k(t, t0, t0 + 0.2)) * (1 - sm(k(t, t0 + 1.3, t0 + 1.6))); if (a <= 0) return;
     const p = B.project(head); if (!p.ok) return;
-    g.save(); g.translate(p.x, p.y - 30); const s = (0.6 + 0.4 * a) * (1 + 0.08 * Math.sin(t * 20)); g.scale(s, s); g.rotate(t * 1.5);
-    g.globalAlpha = a; g.shadowColor = '#ffd23f'; g.shadowBlur = 50; g.fillStyle = '#fff6b0'; g.scale(1.7, 1.7);
+    // round 3: it was too small to read against the sky (the reference's idea icon is a big, obvious pop).
+    g.save(); g.translate(p.x, p.y - 46); const s = (0.6 + 0.4 * a) * (1 + 0.08 * Math.sin(t * 20)); g.scale(s, s); g.rotate(t * 1.5);
+    g.globalAlpha = a; g.shadowColor = '#ff9d1f'; g.shadowBlur = 70; g.fillStyle = '#fff6b0'; g.scale(2.6, 2.6);
     g.beginPath(); for (let i = 0; i < 8; i++) { const r = i % 2 ? 9 : 34, an = i * Math.PI / 4; g.lineTo(Math.cos(an) * r, Math.sin(an) * r); } g.closePath(); g.fill(); g.restore(); }
   function overlay(t) {
     B.vignette(0.14);
     sparkle(t, T.genius, V(3, TOPY + 2.15, 3.2));
     sparkle(t, T.brain - 0.1, V(HW - 3, WY + 2.15, HW - 0.6));
-    B.tint(sm(k(t, T.fire - 0.5, T.fire + 0.3)) * (1 - sm(k(t, T.wall - 0.2, T.wall + 0.3))) * 0.25, '#ff7a2a', 'soft-light');
+    // round 3: the fire tint was a dark orange (#ff7a2a), and soft-light with it crushed the blue channel - the sky
+    // went navy and the fence went black for the whole fire beat. This one is warm but neutral in blue, so the beat
+    // reads as firelight instead of nightfall.
+    B.tint(sm(k(t, T.fire - 0.5, T.fire + 0.3)) * (1 - sm(k(t, T.wall - 0.2, T.wall + 0.3))) * 0.22, '#ffc080', 'soft-light');
   }
 
   const dimEnv = () => scene.traverse(o => { if (o.material && o.material.isMeshStandardMaterial && o.material.envMapIntensity === 1) o.material.envMapIntensity = 0.4; });
